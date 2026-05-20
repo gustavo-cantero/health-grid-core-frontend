@@ -203,6 +203,20 @@ button { font-family: inherit; }
   box-shadow: 0 0 0 3px rgba(0,103,71,.18);
 }
 .form-group input::placeholder { color: #b0b8bc; }
+.form-group input.ng-invalid.ng-touched,
+.form-group select.ng-invalid.ng-touched {
+  border-color: #A32D2D;
+  background: #fff8f8;
+}
+.form-group input.ng-invalid.ng-touched:focus,
+.form-group select.ng-invalid.ng-touched:focus {
+  border-color: #A32D2D;
+  box-shadow: 0 0 0 3px rgba(163,45,45,.18);
+}
+.form-error {
+  display: block; font-size: 11px; color: #A32D2D;
+  margin-top: 4px; font-weight: 500;
+}
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 .btn-primary {

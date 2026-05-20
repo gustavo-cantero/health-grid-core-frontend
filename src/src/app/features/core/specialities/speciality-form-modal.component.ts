@@ -18,7 +18,12 @@ import { Speciality } from '../../../core/models/speciality.model';
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <div class="form-group">
           <label for="spec-name">Nombre</label>
-          <input id="spec-name" type="text" formControlName="name" placeholder="Ej: Dermatología" />
+          <input id="spec-name" type="text" formControlName="name" placeholder="Ej: Dermatología"
+            [attr.aria-describedby]="form.get('name')?.invalid && form.get('name')?.touched ? 'spec-name-error' : null"
+            [attr.aria-invalid]="form.get('name')?.invalid && form.get('name')?.touched ? 'true' : null" />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <span id="spec-name-error" class="form-error" role="alert">Este campo es obligatorio</span>
+          }
         </div>
         <p class="api-note">{{ apiNote() }}</p>
         <div class="modal-footer">

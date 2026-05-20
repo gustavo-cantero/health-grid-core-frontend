@@ -36,16 +36,34 @@ type EditTab = 'datos' | 'roles' | 'specs' | 'locs';
               <div class="form-row">
                 <div class="form-group">
                   <label for="ue-first">Nombre</label>
-                  <input id="ue-first" type="text" formControlName="firstName" />
+                  <input id="ue-first" type="text" formControlName="firstName"
+                    [attr.aria-describedby]="dataForm.get('firstName')?.invalid && dataForm.get('firstName')?.touched ? 'ue-first-error' : null"
+                    [attr.aria-invalid]="dataForm.get('firstName')?.invalid && dataForm.get('firstName')?.touched ? 'true' : null" />
+                  @if (dataForm.get('firstName')?.invalid && dataForm.get('firstName')?.touched) {
+                    <span id="ue-first-error" class="form-error" role="alert">Este campo es obligatorio</span>
+                  }
                 </div>
                 <div class="form-group">
                   <label for="ue-last">Apellido</label>
-                  <input id="ue-last" type="text" formControlName="lastName" />
+                  <input id="ue-last" type="text" formControlName="lastName"
+                    [attr.aria-describedby]="dataForm.get('lastName')?.invalid && dataForm.get('lastName')?.touched ? 'ue-last-error' : null"
+                    [attr.aria-invalid]="dataForm.get('lastName')?.invalid && dataForm.get('lastName')?.touched ? 'true' : null" />
+                  @if (dataForm.get('lastName')?.invalid && dataForm.get('lastName')?.touched) {
+                    <span id="ue-last-error" class="form-error" role="alert">Este campo es obligatorio</span>
+                  }
                 </div>
               </div>
               <div class="form-group">
                 <label for="ue-email">Email</label>
-                <input id="ue-email" type="email" formControlName="email" />
+                <input id="ue-email" type="email" formControlName="email"
+                  [attr.aria-describedby]="dataForm.get('email')?.invalid && dataForm.get('email')?.touched ? 'ue-email-error' : null"
+                  [attr.aria-invalid]="dataForm.get('email')?.invalid && dataForm.get('email')?.touched ? 'true' : null" />
+                @if (dataForm.get('email')?.invalid && dataForm.get('email')?.touched) {
+                  <span id="ue-email-error" class="form-error" role="alert">
+                    @if (dataForm.get('email')?.hasError('required')) { Este campo es obligatorio }
+                    @else { Ingresá un email válido }
+                  </span>
+                }
               </div>
               <p class="api-note">→ PUT /users/{{ '{' }}id{{ '}' }}</p>
               <div class="modal-footer">

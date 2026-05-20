@@ -18,7 +18,12 @@ import { Permission } from '../../../core/models/permission.model';
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <div class="form-group">
           <label for="perm-name">Nombre</label>
-          <input id="perm-name" type="text" formControlName="name" placeholder="Ej: reports:export" />
+          <input id="perm-name" type="text" formControlName="name" placeholder="Ej: reports:export"
+            [attr.aria-describedby]="form.get('name')?.invalid && form.get('name')?.touched ? 'perm-name-error' : null"
+            [attr.aria-invalid]="form.get('name')?.invalid && form.get('name')?.touched ? 'true' : null" />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <span id="perm-name-error" class="form-error" role="alert">Este campo es obligatorio</span>
+          }
         </div>
         <p class="api-note">{{ apiNote() }}</p>
         <div class="modal-footer">

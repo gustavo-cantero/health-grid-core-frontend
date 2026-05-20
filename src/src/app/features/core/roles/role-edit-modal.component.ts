@@ -22,7 +22,12 @@ import { Role } from '../../../core/models/role.model';
         <form [formGroup]="form" (ngSubmit)="save()" novalidate>
           <div class="form-group">
             <label for="re-name">Nombre del rol</label>
-            <input id="re-name" type="text" formControlName="name" />
+            <input id="re-name" type="text" formControlName="name"
+              [attr.aria-describedby]="form.get('name')?.invalid && form.get('name')?.touched ? 're-name-error' : null"
+              [attr.aria-invalid]="form.get('name')?.invalid && form.get('name')?.touched ? 'true' : null" />
+            @if (form.get('name')?.invalid && form.get('name')?.touched) {
+              <span id="re-name-error" class="form-error" role="alert">Este campo es obligatorio</span>
+            }
           </div>
 
           <app-chips-input

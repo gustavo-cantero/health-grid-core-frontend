@@ -18,7 +18,12 @@ import { Role } from '../../../core/models/role.model';
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <div class="form-group">
           <label for="rc-name">Nombre del rol</label>
-          <input id="rc-name" type="text" formControlName="name" placeholder="Ej: Enfermero" />
+          <input id="rc-name" type="text" formControlName="name" placeholder="Ej: Enfermero"
+            [attr.aria-describedby]="form.get('name')?.invalid && form.get('name')?.touched ? 'rc-name-error' : null"
+            [attr.aria-invalid]="form.get('name')?.invalid && form.get('name')?.touched ? 'true' : null" />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <span id="rc-name-error" class="form-error" role="alert">Este campo es obligatorio</span>
+          }
         </div>
         <p class="api-note">→ POST /roles</p>
         <div class="modal-footer">

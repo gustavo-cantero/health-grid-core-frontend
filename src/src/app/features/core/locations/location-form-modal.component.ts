@@ -18,20 +18,40 @@ import { Location } from '../../../core/models/location.model';
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <div class="form-group">
           <label for="loc-name">Nombre</label>
-          <input id="loc-name" type="text" formControlName="name" placeholder="Ej: Sede Sur" />
+          <input id="loc-name" type="text" formControlName="name" placeholder="Ej: Sede Sur"
+            [attr.aria-describedby]="form.get('name')?.invalid && form.get('name')?.touched ? 'loc-name-error' : null"
+            [attr.aria-invalid]="form.get('name')?.invalid && form.get('name')?.touched ? 'true' : null" />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <span id="loc-name-error" class="form-error" role="alert">Este campo es obligatorio</span>
+          }
         </div>
         <div class="form-group">
           <label for="loc-addr">Dirección</label>
-          <input id="loc-addr" type="text" formControlName="address" placeholder="Av. Rivadavia 1234" />
+          <input id="loc-addr" type="text" formControlName="address" placeholder="Av. Rivadavia 1234"
+            [attr.aria-describedby]="form.get('address')?.invalid && form.get('address')?.touched ? 'loc-addr-error' : null"
+            [attr.aria-invalid]="form.get('address')?.invalid && form.get('address')?.touched ? 'true' : null" />
+          @if (form.get('address')?.invalid && form.get('address')?.touched) {
+            <span id="loc-addr-error" class="form-error" role="alert">Este campo es obligatorio</span>
+          }
         </div>
         <div class="form-row">
           <div class="form-group">
             <label for="loc-city">Ciudad</label>
-            <input id="loc-city" type="text" formControlName="city" placeholder="Buenos Aires" />
+            <input id="loc-city" type="text" formControlName="city" placeholder="Buenos Aires"
+              [attr.aria-describedby]="form.get('city')?.invalid && form.get('city')?.touched ? 'loc-city-error' : null"
+              [attr.aria-invalid]="form.get('city')?.invalid && form.get('city')?.touched ? 'true' : null" />
+            @if (form.get('city')?.invalid && form.get('city')?.touched) {
+              <span id="loc-city-error" class="form-error" role="alert">Este campo es obligatorio</span>
+            }
           </div>
           <div class="form-group">
             <label for="loc-country">País</label>
-            <input id="loc-country" type="text" formControlName="country" placeholder="Argentina" />
+            <input id="loc-country" type="text" formControlName="country" placeholder="Argentina"
+              [attr.aria-describedby]="form.get('country')?.invalid && form.get('country')?.touched ? 'loc-country-error' : null"
+              [attr.aria-invalid]="form.get('country')?.invalid && form.get('country')?.touched ? 'true' : null" />
+            @if (form.get('country')?.invalid && form.get('country')?.touched) {
+              <span id="loc-country-error" class="form-error" role="alert">Este campo es obligatorio</span>
+            }
           </div>
         </div>
         <p class="api-note">{{ apiNote() }}</p>
