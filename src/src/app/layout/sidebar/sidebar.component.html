@@ -14,7 +14,7 @@
   <nav class="sidebar-nav">
     <div class="nav-section-title">MÓDULOS</div>
 
-    @for (m of modules; track m.label; let idx = $index) {
+    @for (m of modules; track m.label) {
       <button
         type="button"
         class="nav-item"
@@ -36,7 +36,6 @@
           }
         </span>
         <span class="nav-label">{{ m.label }}</span>
-        <span class="nav-module">{{ idx + 1 }}</span>
       </button>
     }
 
@@ -55,7 +54,6 @@
         </svg>
       </span>
       <span class="nav-label">Core</span>
-      <span class="nav-module">10</span>
       <span class="nav-icon" [class.rotate]="coreOpen()" aria-hidden="true">
         <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
       </span>

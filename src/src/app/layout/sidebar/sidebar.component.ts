@@ -10,7 +10,6 @@ type ModuleIcon =
 interface ModuleEntry {
   label: string;
   icon: ModuleIcon;
-  badge: string;
 }
 
 interface CoreSubItem {
@@ -42,15 +41,15 @@ export class SidebarComponent {
   protected readonly initials = computed(() => this.auth.currentUser()?.initials ?? 'GA');
 
   protected readonly modules: readonly ModuleEntry[] = [
-    { label: 'Historia Clínica',         icon: 'file-text',   badge: '1' },
-    { label: 'Turnos y Agendas',         icon: 'calendar',    badge: '2' },
-    { label: 'Farmacia e Insumos',       icon: 'package',     badge: '3' },
-    { label: 'Laboratorio',              icon: 'activity',    badge: '4' },
-    { label: 'Diagnóstico por Imágenes', icon: 'image',       badge: '5' },
-    { label: 'Internación y Camas',      icon: 'home',        badge: '6' },
-    { label: 'Facturación',              icon: 'credit-card', badge: '7' },
-    { label: 'Portal del Paciente',      icon: 'user',        badge: '8' },
-    { label: 'Monitoreo',                icon: 'bar-chart',   badge: '9' },
+    { label: 'Historia Clínica',         icon: 'file-text'   },
+    { label: 'Turnos y Agendas',         icon: 'calendar'    },
+    { label: 'Farmacia e Insumos',       icon: 'package'     },
+    { label: 'Laboratorio',              icon: 'activity'    },
+    { label: 'Diagnóstico por Imágenes', icon: 'image'       },
+    { label: 'Internación y Camas',      icon: 'home'        },
+    { label: 'Facturación',              icon: 'credit-card' },
+    { label: 'Portal del Paciente',      icon: 'user'        },
+    { label: 'Monitoreo',                icon: 'bar-chart'   },
   ];
 
   protected readonly coreItems: readonly CoreSubItem[] = [
