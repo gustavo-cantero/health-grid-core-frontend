@@ -7,43 +7,9 @@ import { ToastService } from '../../shared/services/toast.service';
 @Component({
   selector: 'app-profile-edit-modal',
   imports: [ModalComponent, ReactiveFormsModule],
+  templateUrl: './profile-edit-modal.component.html',
+  styleUrls: ['./profile-edit-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <app-modal
-      [open]="open()"
-      title="Editar mi perfil"
-      [maxWidth]="420"
-      (close)="close.emit()"
-    >
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-        <div class="form-group">
-          <label for="profile-name">Nombre</label>
-          <input id="profile-name" type="text" formControlName="name"
-            [attr.aria-describedby]="form.get('name')?.invalid && form.get('name')?.touched ? 'profile-name-error' : null"
-            [attr.aria-invalid]="form.get('name')?.invalid && form.get('name')?.touched ? 'true' : null" />
-          @if (form.get('name')?.invalid && form.get('name')?.touched) {
-            <span id="profile-name-error" class="form-error" role="alert">Este campo es obligatorio</span>
-          }
-        </div>
-        <div class="form-group">
-          <label for="profile-email">Email</label>
-          <input id="profile-email" type="email" formControlName="email"
-            [attr.aria-describedby]="form.get('email')?.invalid && form.get('email')?.touched ? 'profile-email-error' : null"
-            [attr.aria-invalid]="form.get('email')?.invalid && form.get('email')?.touched ? 'true' : null" />
-          @if (form.get('email')?.invalid && form.get('email')?.touched) {
-            <span id="profile-email-error" class="form-error" role="alert">
-              @if (form.get('email')?.hasError('required')) { Este campo es obligatorio }
-              @else { Ingresá un email válido }
-            </span>
-          }
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
-          <button type="submit" class="btn-main">Guardar cambios</button>
-        </div>
-      </form>
-    </app-modal>
-  `,
 })
 export class ProfileEditModalComponent {
   private readonly fb = inject(FormBuilder);

@@ -3,12 +3,9 @@ import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-topbar',
+  templateUrl: './topbar.component.html',
+  styleUrls: ['./topbar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <header class="topbar">
-      <span class="topbar-action">{{ greeting() }}</span>
-    </header>
-  `,
 })
 export class TopbarComponent {
   private readonly auth = inject(AuthService);

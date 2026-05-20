@@ -3,17 +3,9 @@ import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-toast',
+  templateUrl: './toast.component.html',
+  styleUrls: ['./toast.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div
-      class="toast"
-      [class.show]="visible()"
-      role="status"
-      aria-live="polite"
-    >
-      {{ message() ?? '' }}
-    </div>
-  `,
 })
 export class ToastComponent {
   private readonly toast = inject(ToastService);

@@ -6,57 +6,9 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
   selector: 'app-register',
   imports: [ReactiveFormsModule, RouterLink],
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="auth-page">
-      <div class="auth-card">
-        <div class="auth-logo-wrap">
-          <div class="auth-logo-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          </div>
-          <h1 class="auth-title">Crear cuenta</h1>
-          <p class="auth-sub">Completá tus datos para registrarte</p>
-        </div>
-
-        @if (error()) {
-          <div class="alert alert-error" role="alert">{{ error() }}</div>
-        }
-        @if (success()) {
-          <div class="alert alert-success" role="status">¡Cuenta creada exitosamente! Redirigiendo…</div>
-        }
-
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="reg-first">Nombre</label>
-              <input id="reg-first" type="text" autocomplete="given-name" formControlName="firstName" placeholder="Gustavo" />
-            </div>
-            <div class="form-group">
-              <label for="reg-last">Apellido</label>
-              <input id="reg-last" type="text" autocomplete="family-name" formControlName="lastName" placeholder="Arevalo" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="reg-email">Email</label>
-            <input id="reg-email" type="email" autocomplete="email" formControlName="email" placeholder="usuario@healthgrid.com" />
-          </div>
-          <div class="form-group">
-            <label for="reg-pass">Contraseña <span style="color:#999;font-weight:400;text-transform:none;font-size:11px">(mín. 6 caracteres)</span></label>
-            <input id="reg-pass" type="password" autocomplete="new-password" formControlName="password" placeholder="••••••••" />
-          </div>
-          <div class="form-group">
-            <label for="reg-pass2">Confirmar contraseña</label>
-            <input id="reg-pass2" type="password" autocomplete="new-password" formControlName="passwordConfirm" placeholder="••••••••" />
-          </div>
-          <button type="submit" class="btn-primary" [disabled]="loading()">
-            {{ loading() ? 'Creando…' : 'Crear cuenta' }}
-          </button>
-        </form>
-
-        <p class="auth-link">¿Ya tenés cuenta? <a routerLink="/login">Iniciá sesión</a></p>
-      </div>
-    </div>
-  `,
 })
 export class RegisterComponent {
   private readonly fb = inject(FormBuilder);

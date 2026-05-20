@@ -7,33 +7,9 @@ import { Speciality } from '../../../core/models/speciality.model';
 @Component({
   selector: 'app-speciality-form-modal',
   imports: [ModalComponent, ReactiveFormsModule],
+  templateUrl: './speciality-form-modal.component.html',
+  styleUrls: ['./speciality-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <app-modal
-      [open]="open()"
-      [title]="title()"
-      [maxWidth]="420"
-      (close)="close.emit()"
-    >
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-        <div class="form-group">
-          <label for="spec-name">Nombre</label>
-          <input id="spec-name" type="text" formControlName="name" placeholder="Ej: Dermatología"
-            [attr.aria-describedby]="form.get('name')?.invalid && form.get('name')?.touched ? 'spec-name-error' : null"
-            [attr.aria-invalid]="form.get('name')?.invalid && form.get('name')?.touched ? 'true' : null" />
-          @if (form.get('name')?.invalid && form.get('name')?.touched) {
-            <span id="spec-name-error" class="form-error" role="alert">Este campo es obligatorio</span>
-          }
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
-          <button type="submit" class="btn-main" [disabled]="loading()">
-            {{ existing() ? 'Guardar cambios' : 'Crear especialidad' }}
-          </button>
-        </div>
-      </form>
-    </app-modal>
-  `,
 })
 export class SpecialityFormModalComponent {
   private readonly fb = inject(FormBuilder);

@@ -41,6 +41,15 @@ src/
   styles.scss       # ALL global styles — no component-level stylesheets
 ```
 
+### Component file convention
+
+Each component has three files in the same directory:
+- `*.component.ts` — class, decorator, imports
+- `*.component.html` — template (referenced via `templateUrl`)
+- `*.component.scss` — component styles (referenced via `styleUrls`; currently empty since all styles live in `styles.scss`)
+
+Always use `templateUrl` and `styleUrls` with paths relative to the component TS file. Never use inline `template` or `styles`.
+
 ### Data layer — all fake, no HTTP
 
 Every service (`UserService`, `RoleService`, etc.) stores data in a `signal<T[]>` and returns `Observable<T>` via `of(value).pipe(delay(300))`. There is no real backend. `AuthService` simulates login with any credentials (accepts any non-empty email/password pair).

@@ -13,37 +13,9 @@ let modalCounter = 0;
 
 @Component({
   selector: 'app-modal',
+  templateUrl: './modal.component.html',
+  styleUrls: ['./modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @if (open()) {
-      <div
-        class="modal-bg"
-        (click)="onBackdropClick($event)"
-        (keydown.escape)="close.emit()"
-      >
-        <div
-          #panel
-          class="modal"
-          role="dialog"
-          aria-modal="true"
-          [attr.aria-labelledby]="titleId"
-          tabindex="-1"
-          [style.max-width.px]="maxWidthPx()"
-        >
-          <div class="modal-header">
-            <h3 [id]="titleId">{{ title() }}</h3>
-            <button
-              type="button"
-              class="close-btn"
-              [attr.aria-label]="'Cerrar ' + title()"
-              (click)="close.emit()"
-            >×</button>
-          </div>
-          <ng-content />
-        </div>
-      </div>
-    }
-  `,
   host: {
     '(document:keydown.escape)': 'onEscape()',
   },

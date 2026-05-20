@@ -10,44 +10,9 @@ import { Role } from '../../../core/models/role.model';
 @Component({
   selector: 'app-role-edit-modal',
   imports: [ModalComponent, ReactiveFormsModule, ChipsInputComponent],
+  templateUrl: './role-edit-modal.component.html',
+  styleUrls: ['./role-edit-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <app-modal
-      [open]="open()"
-      [title]="title()"
-      [maxWidth]="480"
-      (close)="close.emit()"
-    >
-      @if (role(); as r) {
-        <form [formGroup]="form" (ngSubmit)="save()" novalidate>
-          <div class="form-group">
-            <label for="re-name">Nombre del rol</label>
-            <input id="re-name" type="text" formControlName="name"
-              [attr.aria-describedby]="form.get('name')?.invalid && form.get('name')?.touched ? 're-name-error' : null"
-              [attr.aria-invalid]="form.get('name')?.invalid && form.get('name')?.touched ? 'true' : null" />
-            @if (form.get('name')?.invalid && form.get('name')?.touched) {
-              <span id="re-name-error" class="form-error" role="alert">Este campo es obligatorio</span>
-            }
-          </div>
-
-          <app-chips-input
-            assignedLabel="Permisos asignados"
-            addLabel="Agregar permiso"
-            placeholder="Seleccioná un permiso..."
-            [assigned]="assignedPerms()"
-            [available]="availablePerms()"
-            (add)="onAddPerm($event)"
-            (remove)="onRemovePerm($event)"
-          />
-
-          <div class="modal-footer">
-            <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
-            <button type="submit" class="btn-main" [disabled]="loading()">Guardar cambios</button>
-          </div>
-        </form>
-      }
-    </app-modal>
-  `,
 })
 export class RoleEditModalComponent {
   private readonly fb = inject(FormBuilder);

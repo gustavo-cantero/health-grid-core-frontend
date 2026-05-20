@@ -9,68 +9,9 @@ import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confir
 @Component({
   selector: 'app-specialities-list',
   imports: [SpecialityFormModalComponent, ConfirmDeleteComponent],
+  templateUrl: './specialities-list.component.html',
+  styleUrls: ['./specialities-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="page-eyebrow">Gestión</div>
-    <h1 class="page-title">Especialidades</h1>
-    <p class="page-subtitle">Administrá las especialidades médicas disponibles en el sistema.</p>
-
-    <div style="text-align:right;margin-bottom:16px">
-      <button type="button" class="btn-main" (click)="openCreate.set(true)">+ Nueva especialidad</button>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Médicos asignados</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (s of specialities(); track s.id) {
-            <tr>
-              <td class="cell-id">#{{ s.id }}</td>
-              <td><span class="badge badge-blue">{{ s.name }}</span></td>
-              <td>{{ doctorCount(s.id) }}</td>
-              <td>
-                <div class="actions">
-                  <button type="button" class="btn-outline" (click)="editing.set(s)">Editar</button>
-                  <button type="button" class="btn-danger" (click)="deleting.set(s)">Eliminar</button>
-                </div>
-              </td>
-            </tr>
-          }
-          @if (specialities().length === 0) {
-            <tr><td colspan="4" class="empty-state">No hay especialidades definidas.</td></tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <app-speciality-form-modal
-      [open]="openCreate()"
-      [existing]="null"
-      (close)="openCreate.set(false)"
-      (saved)="onCreated($event)"
-    />
-
-    <app-speciality-form-modal
-      [open]="editing() !== null"
-      [existing]="editing()"
-      (close)="editing.set(null)"
-      (saved)="onUpdated($event)"
-    />
-
-    <app-confirm-delete
-      [open]="deleting() !== null"
-      entityLabel="especialidad"
-      (cancel)="deleting.set(null)"
-      (confirm)="confirmDelete()"
-    />
-  `,
 })
 export class SpecialitiesListComponent implements OnInit {
   private readonly specService = inject(SpecialityService);
