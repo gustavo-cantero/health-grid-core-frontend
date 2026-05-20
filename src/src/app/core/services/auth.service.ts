@@ -10,14 +10,16 @@ export interface SessionUser {
   initials: string;
 }
 
+const SESSION_KEY = 'hg_session';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   readonly baseUrl = `${environment.apiBaseUrl}/auth`;
 
-  private readonly _currentUser = signal<SessionUser | null>(null);
+  private readonly _currentUser = signal<SessionUser | null>(this.loadSession());
   readonly currentUser = this._currentUser.asReadonly();
 
-  readonly isAuthenticated = signal<boolean>(false);
+  readonly isAuthenticated = signal<boolean>(this._currentUser() !== null);
 
   login(email: string, password: string): Observable<SessionUser> {
     if (!email || !password) {
@@ -31,6 +33,7 @@ export class AuthService {
     };
     this._currentUser.set(user);
     this.isAuthenticated.set(true);
+    localStorage.setItem(SESSION_KEY, JSON.stringify(user));
     return of(user).pipe(delay(300));
   }
 
@@ -65,11 +68,22 @@ export class AuthService {
       initials: this.computeInitials(patch.name ?? current.name),
     };
     this._currentUser.set(next);
+    localStorage.setItem(SESSION_KEY, JSON.stringify(next));
   }
 
   logout(): void {
     this._currentUser.set(null);
     this.isAuthenticated.set(false);
+    localStorage.removeItem(SESSION_KEY);
+  }
+
+  private loadSession(): SessionUser | null {
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      return raw ? (JSON.parse(raw) as SessionUser) : null;
+    } catch {
+      return null;
+    }
   }
 
   private guessNameFromEmail(email: string): string {
