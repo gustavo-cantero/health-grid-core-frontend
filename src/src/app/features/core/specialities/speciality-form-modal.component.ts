@@ -25,7 +25,6 @@ import { Speciality } from '../../../core/models/speciality.model';
             <span id="spec-name-error" class="form-error" role="alert">Este campo es obligatorio</span>
           }
         </div>
-        <p class="api-note">{{ apiNote() }}</p>
         <div class="modal-footer">
           <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
           <button type="submit" class="btn-main" [disabled]="loading()">
@@ -48,9 +47,6 @@ export class SpecialityFormModalComponent {
   protected readonly loading = signal<boolean>(false);
 
   protected readonly title = computed(() => this.existing() ? 'Editar especialidad' : 'Nueva especialidad');
-  protected readonly apiNote = computed(() =>
-    this.existing() ? '→ PUT /specialities/{id}' : '→ POST /specialities',
-  );
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],

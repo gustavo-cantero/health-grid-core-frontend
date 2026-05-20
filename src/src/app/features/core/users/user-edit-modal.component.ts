@@ -65,7 +65,6 @@ type EditTab = 'datos' | 'roles' | 'specs' | 'locs';
                   </span>
                 }
               </div>
-              <p class="api-note">→ PUT /users/{{ '{' }}id{{ '}' }}</p>
               <div class="modal-footer">
                 <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
                 <button type="submit" class="btn-main" [disabled]="loading()">Guardar cambios</button>
@@ -82,7 +81,6 @@ type EditTab = 'datos' | 'roles' | 'specs' | 'locs';
               (add)="onAddRole($event)"
               (remove)="onRemoveRole($event)"
             />
-            <p class="api-note" style="margin-top:14px">→ PUT /users/{{ '{' }}id{{ '}' }}/roles</p>
             <div class="modal-footer">
               <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
               <button type="button" class="btn-main" [disabled]="loading()" (click)="saveRoles()">Guardar cambios</button>
@@ -98,7 +96,6 @@ type EditTab = 'datos' | 'roles' | 'specs' | 'locs';
               (add)="onAddSpec($event)"
               (remove)="onRemoveSpec($event)"
             />
-            <p class="api-note" style="margin-top:14px">→ PUT /users/{{ '{' }}id{{ '}' }}/specialities</p>
             <div class="modal-footer">
               <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
               <button type="button" class="btn-main" [disabled]="loading()" (click)="saveSpecs()">Guardar cambios</button>
@@ -114,7 +111,6 @@ type EditTab = 'datos' | 'roles' | 'specs' | 'locs';
               (add)="onAddLoc($event)"
               (remove)="onRemoveLoc($event)"
             />
-            <p class="api-note" style="margin-top:14px">→ PUT /users/{{ '{' }}id{{ '}' }}/locations</p>
             <div class="modal-footer">
               <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
               <button type="button" class="btn-main" [disabled]="loading()" (click)="saveLocs()">Guardar cambios</button>

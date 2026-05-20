@@ -25,7 +25,6 @@ import { Permission } from '../../../core/models/permission.model';
             <span id="perm-name-error" class="form-error" role="alert">Este campo es obligatorio</span>
           }
         </div>
-        <p class="api-note">{{ apiNote() }}</p>
         <div class="modal-footer">
           <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
           <button type="submit" class="btn-main" [disabled]="loading()">
@@ -48,9 +47,6 @@ export class PermissionFormModalComponent {
   protected readonly loading = signal<boolean>(false);
 
   protected readonly title = computed(() => this.existing() ? 'Editar permiso' : 'Nuevo permiso');
-  protected readonly apiNote = computed(() =>
-    this.existing() ? '→ PUT /permissions/{id}' : '→ POST /permissions',
-  );
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],

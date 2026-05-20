@@ -25,7 +25,6 @@ import { Role } from '../../../core/models/role.model';
             <span id="rc-name-error" class="form-error" role="alert">Este campo es obligatorio</span>
           }
         </div>
-        <p class="api-note">→ POST /roles</p>
         <div class="modal-footer">
           <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
           <button type="submit" class="btn-main" [disabled]="loading()">Crear rol</button>

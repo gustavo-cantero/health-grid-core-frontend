@@ -62,8 +62,6 @@ import { User } from '../../../core/models/user.model';
             </span>
           }
         </div>
-        <p class="api-note">→ POST /users — Los roles y especialidades se asignan luego desde "Editar usuario".</p>
-
         <div class="modal-footer">
           <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
           <button type="submit" class="btn-main" [disabled]="loading()">

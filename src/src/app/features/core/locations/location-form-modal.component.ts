@@ -54,7 +54,6 @@ import { Location } from '../../../core/models/location.model';
             }
           </div>
         </div>
-        <p class="api-note">{{ apiNote() }}</p>
         <div class="modal-footer">
           <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
           <button type="submit" class="btn-main" [disabled]="loading()">
@@ -77,9 +76,6 @@ export class LocationFormModalComponent {
   protected readonly loading = signal<boolean>(false);
 
   protected readonly title = computed(() => this.existing() ? 'Editar ubicación' : 'Nueva ubicación');
-  protected readonly apiNote = computed(() =>
-    this.existing() ? '→ PUT /locations/{id}' : '→ POST /locations',
-  );
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],

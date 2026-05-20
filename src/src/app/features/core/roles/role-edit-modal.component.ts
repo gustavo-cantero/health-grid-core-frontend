@@ -40,8 +40,6 @@ import { Role } from '../../../core/models/role.model';
             (remove)="onRemovePerm($event)"
           />
 
-          <p class="api-note">→ PUT /roles/{{ '{' }}id{{ '}' }}</p>
-
           <div class="modal-footer">
             <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
             <button type="submit" class="btn-main" [disabled]="loading()">Guardar cambios</button>
