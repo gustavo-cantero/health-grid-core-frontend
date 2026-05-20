@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
+import { ConfirmUnsavedComponent } from '../../../shared/ui/confirm-unsaved/confirm-unsaved.component';
 import { SpecialityService } from '../../../core/services/speciality.service';
 import { Speciality } from '../../../core/models/speciality.model';
 
 @Component({
   selector: 'app-speciality-form-modal',
-  imports: [ModalComponent, ReactiveFormsModule],
+  imports: [ModalComponent, ReactiveFormsModule, ConfirmUnsavedComponent],
   templateUrl: './speciality-form-modal.component.html',
   styleUrls: ['./speciality-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,12 +22,28 @@ export class SpecialityFormModalComponent {
   readonly saved = output<Speciality>();
 
   protected readonly loading = signal<boolean>(false);
+  protected readonly confirmingCancel = signal<boolean>(false);
 
   protected readonly title = computed(() => this.existing() ? 'Editar especialidad' : 'Nueva especialidad');
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
   });
+
+  protected readonly isDirty = computed(() => this.form.dirty);
+
+  requestClose(): void {
+    if (this.isDirty()) {
+      this.confirmingCancel.set(true);
+    } else {
+      this.close.emit();
+    }
+  }
+
+  confirmClose(): void {
+    this.confirmingCancel.set(false);
+    this.close.emit();
+  }
 
   constructor() {
     effect(() => {

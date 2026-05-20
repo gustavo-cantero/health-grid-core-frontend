@@ -1,0 +1,14 @@
+<app-modal
+  [open]="open()"
+  title="Cambios sin guardar"
+  [maxWidth]="380"
+  (close)="cancel.emit()"
+>
+  <p class="confirm-unsaved-text">
+    Tenés cambios sin guardar. ¿Querés descartarlos y cerrar?
+  </p>
+  <div class="modal-footer">
+    <button type="button" class="btn-cancel" (click)="cancel.emit()">Seguir editando</button>
+    <button type="button" class="btn-destroy" (click)="confirm.emit()">Descartar cambios</button>
+  </div>
+</app-modal>

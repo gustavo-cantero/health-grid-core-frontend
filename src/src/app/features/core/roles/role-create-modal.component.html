@@ -2,7 +2,7 @@
   [open]="open()"
   title="Nuevo rol"
   [maxWidth]="420"
-  (close)="close.emit()"
+  (close)="requestClose()"
 >
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <div class="form-group">
@@ -15,8 +15,13 @@
       }
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
+      <button type="button" class="btn-cancel" (click)="requestClose()">Cancelar</button>
       <button type="submit" class="btn-main" [disabled]="loading()">Crear rol</button>
     </div>
   </form>
 </app-modal>
+<app-confirm-unsaved
+  [open]="confirmingCancel()"
+  (confirm)="confirmClose()"
+  (cancel)="confirmingCancel.set(false)"
+/>

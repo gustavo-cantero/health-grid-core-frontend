@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
+import { ConfirmUnsavedComponent } from '../../../shared/ui/confirm-unsaved/confirm-unsaved.component';
 import { ChipsInputComponent, ChipOption } from '../../../shared/ui/chips-input/chips-input.component';
 import { RoleService } from '../../../core/services/role.service';
 import { PermissionService } from '../../../core/services/permission.service';
@@ -9,7 +10,7 @@ import { Role } from '../../../core/models/role.model';
 
 @Component({
   selector: 'app-role-edit-modal',
-  imports: [ModalComponent, ReactiveFormsModule, ChipsInputComponent],
+  imports: [ModalComponent, ReactiveFormsModule, ChipsInputComponent, ConfirmUnsavedComponent],
   templateUrl: './role-edit-modal.component.html',
   styleUrls: ['./role-edit-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,6 +28,7 @@ export class RoleEditModalComponent {
 
   protected readonly loading = signal<boolean>(false);
   protected readonly draftPermIds = signal<number[]>([]);
+  protected readonly confirmingCancel = signal<boolean>(false);
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -71,6 +73,27 @@ export class RoleEditModalComponent {
       this.toast.show(`Rol "${saved.name}" actualizado correctamente`);
       this.updated.emit(saved);
     });
+  }
+
+  protected readonly isDirty = computed(() => {
+    const r = this.role();
+    if (!r) return false;
+    const draftIds = [...this.draftPermIds()].sort((a, b) => a - b);
+    const origIds = [...r.permissionIds].sort((a, b) => a - b);
+    return this.form.dirty || draftIds.length !== origIds.length || draftIds.some((v, i) => v !== origIds[i]);
+  });
+
+  requestClose(): void {
+    if (this.isDirty()) {
+      this.confirmingCancel.set(true);
+    } else {
+      this.close.emit();
+    }
+  }
+
+  confirmClose(): void {
+    this.confirmingCancel.set(false);
+    this.close.emit();
   }
 
   onAddPerm(permId: number): void { this.draftPermIds.update(ids => [...ids, permId]); }

@@ -2,7 +2,7 @@
   [open]="open()"
   [title]="title()"
   [maxWidth]="480"
-  (close)="close.emit()"
+  (close)="requestClose()"
 >
   @if (role(); as r) {
     <form [formGroup]="form" (ngSubmit)="save()" novalidate>
@@ -27,9 +27,14 @@
       />
 
       <div class="modal-footer">
-        <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
+        <button type="button" class="btn-cancel" (click)="requestClose()">Cancelar</button>
         <button type="submit" class="btn-main" [disabled]="loading()">Guardar cambios</button>
       </div>
     </form>
   }
 </app-modal>
+<app-confirm-unsaved
+  [open]="confirmingCancel()"
+  (confirm)="confirmClose()"
+  (cancel)="confirmingCancel.set(false)"
+/>

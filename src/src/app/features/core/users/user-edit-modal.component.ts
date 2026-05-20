@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
+import { ConfirmUnsavedComponent } from '../../../shared/ui/confirm-unsaved/confirm-unsaved.component';
 import { ChipsInputComponent, ChipOption } from '../../../shared/ui/chips-input/chips-input.component';
 import { UserService } from '../../../core/services/user.service';
 import { RoleService } from '../../../core/services/role.service';
@@ -13,7 +14,7 @@ type EditTab = 'datos' | 'roles' | 'specs' | 'locs';
 
 @Component({
   selector: 'app-user-edit-modal',
-  imports: [ModalComponent, ReactiveFormsModule, ChipsInputComponent],
+  imports: [ModalComponent, ReactiveFormsModule, ChipsInputComponent, ConfirmUnsavedComponent],
   templateUrl: './user-edit-modal.component.html',
   styleUrls: ['./user-edit-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +34,7 @@ export class UserEditModalComponent {
 
   protected readonly tab = signal<EditTab>('datos');
   protected readonly loading = signal<boolean>(false);
+  protected readonly confirmingCancel = signal<boolean>(false);
 
   protected readonly title = computed(() => {
     const u = this.user();
@@ -140,6 +142,36 @@ export class UserEditModalComponent {
       this.toast.show('Ubicaciones actualizadas correctamente');
       this.updated.emit(saved);
     });
+  }
+
+  protected readonly isDirty = computed(() => {
+    const u = this.user();
+    if (!u) return false;
+    const sameIds = (a: number[], b: number[]) => {
+      if (a.length !== b.length) return false;
+      const sa = [...a].sort((x, y) => x - y);
+      const sb = [...b].sort((x, y) => x - y);
+      return sa.every((v, i) => v === sb[i]);
+    };
+    return (
+      this.dataForm.dirty ||
+      !sameIds(this.draftRoleIds(), u.roleIds) ||
+      !sameIds(this.draftSpecIds(), u.specialityIds) ||
+      !sameIds(this.draftLocIds(), u.locationIds)
+    );
+  });
+
+  requestClose(): void {
+    if (this.isDirty()) {
+      this.confirmingCancel.set(true);
+    } else {
+      this.close.emit();
+    }
+  }
+
+  confirmClose(): void {
+    this.confirmingCancel.set(false);
+    this.close.emit();
   }
 
   onAddRole(roleId: number): void { this.draftRoleIds.update(ids => [...ids, roleId]); }

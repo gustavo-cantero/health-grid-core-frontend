@@ -2,7 +2,7 @@
   [open]="open()"
   [title]="title()"
   [maxWidth]="560"
-  (close)="close.emit()"
+  (close)="requestClose()"
 >
   @if (user(); as u) {
     <div class="tabs" style="margin-bottom:16px" role="tablist" aria-label="Pestañas de edición">
@@ -48,7 +48,7 @@
             }
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
+            <button type="button" class="btn-cancel" (click)="requestClose()">Cancelar</button>
             <button type="submit" class="btn-main" [disabled]="loading()">Guardar cambios</button>
           </div>
         </form>
@@ -64,7 +64,7 @@
           (remove)="onRemoveRole($event)"
         />
         <div class="modal-footer">
-          <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
+          <button type="button" class="btn-cancel" (click)="requestClose()">Cancelar</button>
           <button type="button" class="btn-main" [disabled]="loading()" (click)="saveRoles()">Guardar cambios</button>
         </div>
       }
@@ -79,7 +79,7 @@
           (remove)="onRemoveSpec($event)"
         />
         <div class="modal-footer">
-          <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
+          <button type="button" class="btn-cancel" (click)="requestClose()">Cancelar</button>
           <button type="button" class="btn-main" [disabled]="loading()" (click)="saveSpecs()">Guardar cambios</button>
         </div>
       }
@@ -94,10 +94,15 @@
           (remove)="onRemoveLoc($event)"
         />
         <div class="modal-footer">
-          <button type="button" class="btn-cancel" (click)="close.emit()">Cancelar</button>
+          <button type="button" class="btn-cancel" (click)="requestClose()">Cancelar</button>
           <button type="button" class="btn-main" [disabled]="loading()" (click)="saveLocs()">Guardar cambios</button>
         </div>
       }
     }
   }
 </app-modal>
+<app-confirm-unsaved
+  [open]="confirmingCancel()"
+  (confirm)="confirmClose()"
+  (cancel)="confirmingCancel.set(false)"
+/>

@@ -1,12 +1,13 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../shared/ui/modal/modal.component';
+import { ConfirmUnsavedComponent } from '../../shared/ui/confirm-unsaved/confirm-unsaved.component';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-profile-edit-modal',
-  imports: [ModalComponent, ReactiveFormsModule],
+  imports: [ModalComponent, ReactiveFormsModule, ConfirmUnsavedComponent],
   templateUrl: './profile-edit-modal.component.html',
   styleUrls: ['./profile-edit-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,10 +20,27 @@ export class ProfileEditModalComponent {
   readonly open = input<boolean>(false);
   readonly close = output<void>();
 
+  protected readonly confirmingCancel = signal<boolean>(false);
+
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
   });
+
+  protected readonly isDirty = computed(() => this.form.dirty);
+
+  requestClose(): void {
+    if (this.isDirty()) {
+      this.confirmingCancel.set(true);
+    } else {
+      this.close.emit();
+    }
+  }
+
+  confirmClose(): void {
+    this.confirmingCancel.set(false);
+    this.close.emit();
+  }
 
   constructor() {
     effect(() => {
