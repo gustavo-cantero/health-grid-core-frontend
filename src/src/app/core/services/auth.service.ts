@@ -59,6 +59,16 @@ export class AuthService {
     return of(undefined).pipe(delay(300));
   }
 
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    if (!currentPassword) {
+      return throwError(() => new Error('La contraseña actual es requerida.')).pipe(delay(200));
+    }
+    if (newPassword.length < 6) {
+      return throwError(() => new Error('La nueva contraseña debe tener al menos 6 caracteres.')).pipe(delay(200));
+    }
+    return of(undefined).pipe(delay(400));
+  }
+
   updateMyProfile(patch: Partial<Pick<SessionUser, 'name' | 'email'>>): void {
     const current = this._currentUser();
     if (!current) return;

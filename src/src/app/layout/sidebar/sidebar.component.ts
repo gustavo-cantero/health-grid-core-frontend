@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signa
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ProfileEditModalComponent } from '../profile-edit-modal/profile-edit-modal.component';
+import { ChangePasswordModalComponent } from '../change-password-modal/change-password-modal.component';
 
 type ModuleIcon =
   | 'file-text' | 'calendar' | 'package' | 'activity'
@@ -19,7 +20,7 @@ interface CoreSubItem {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive, ProfileEditModalComponent],
+  imports: [RouterLink, RouterLinkActive, ProfileEditModalComponent, ChangePasswordModalComponent],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +36,7 @@ export class SidebarComponent {
   protected readonly coreOpen = signal<boolean>(true);
   protected readonly userMenuOpen = signal<boolean>(false);
   protected readonly profileOpen = signal<boolean>(false);
+  protected readonly changePasswordOpen = signal<boolean>(false);
 
   protected readonly userName = computed(() => this.auth.currentUser()?.name ?? 'Invitado');
   protected readonly userRole = computed(() => this.auth.currentUser()?.role ?? '—');
@@ -79,6 +81,11 @@ export class SidebarComponent {
   onEditProfile(): void {
     this.userMenuOpen.set(false);
     this.profileOpen.set(true);
+  }
+
+  onChangePassword(): void {
+    this.userMenuOpen.set(false);
+    this.changePasswordOpen.set(true);
   }
 
   onLogout(): void {

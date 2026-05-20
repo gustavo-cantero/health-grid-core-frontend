@@ -73,6 +73,7 @@
   <div class="sidebar-footer">
     <div class="user-dropdown" [class.open]="userMenuOpen()">
       <button type="button" (click)="onEditProfile()">Editar mis datos</button>
+      <button type="button" (click)="onChangePassword()">Cambiar contraseña</button>
       <button type="button" (click)="onLogout()">Cerrar sesión</button>
     </div>
     <button
@@ -97,4 +98,8 @@
 <app-profile-edit-modal
   [open]="profileOpen()"
   (close)="profileOpen.set(false)"
+/>
+<app-change-password-modal
+  [open]="changePasswordOpen()"
+  (close)="changePasswordOpen.set(false)"
 />
