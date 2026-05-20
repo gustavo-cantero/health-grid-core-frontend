@@ -16,31 +16,61 @@ Panel de administración para gestión de personal de salud, desarrollado con An
 
 ## Tecnologías
 
-| Herramienta | Versión |
-|---|---|
-| Angular | 21 |
-| TypeScript | ~5.9 |
-| RxJS | ~7.8 |
-| lucide-angular | ^1.0 |
-| Vitest | ^4.0 |
-| Prettier | ^3.8 |
+| Herramienta    | Versión |
+| -------------- | ------- |
+| Angular        | 21      |
+| TypeScript     | ~5.9    |
+| RxJS           | ~7.8    |
+| lucide-angular | ^1.0    |
+| Vitest         | ^4.0    |
+| Prettier       | ^3.8    |
 
-## Instalación y desarrollo
+## Requisitos previos
+
+- [Node.js](https://nodejs.org/) 20 o superior
+- npm 11 o superior (incluido con Node.js)
+
+## Cómo ejecutar el proyecto
+
+El proyecto Angular vive dentro de la carpeta `src/`. Todos los comandos deben ejecutarse desde ahí.
+
+**1. Clonar el repositorio**
 
 ```bash
-# Instalar dependencias
+git clone https://github.com/gustavo-cantero/health-grid-core-frontend.git
+cd health-grid-core-angular
+```
+
+**2. Instalar dependencias**
+
+```bash
+cd src
 npm install
+```
 
-# Servidor de desarrollo (http://localhost:4200)
+**3. Iniciar el servidor de desarrollo**
+
+```bash
 npm start
+```
 
-# Build de producción
+Abrí el navegador en `http://localhost:4200`. La app se recarga automáticamente al guardar cambios.
+
+Para ingresar, usá cualquier combinación no vacía de email y contraseña (no hay backend real).
+
+## Otros comandos
+
+```bash
+# Build de producción (salida en dist/)
 npm run build
 
-# Tests unitarios
+# Build con watch (modo desarrollo)
+npm run watch
+
+# Tests unitarios con Vitest
 npm test
 
-# Formatear código
+# Formatear código con Prettier
 npx prettier --write .
 ```
 
