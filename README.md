@@ -1,5 +1,7 @@
 # HealthGrid
 
+![logo](src/public/favicon-96x96.png)
+
 Panel de administración para gestión de personal de salud, desarrollado con Angular 21.
 
 ## Funcionalidades
