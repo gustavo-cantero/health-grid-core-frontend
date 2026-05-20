@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+
+const PAGE_SIZE = 10;
 import { SpecialityService } from '../../../core/services/speciality.service';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -22,6 +24,20 @@ export class SpecialitiesListComponent implements OnInit {
   protected readonly openCreate = signal<boolean>(false);
   protected readonly editing = signal<Speciality | null>(null);
   protected readonly deleting = signal<Speciality | null>(null);
+  protected readonly page = signal<number>(1);
+
+  protected readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.specialities().length / PAGE_SIZE)),
+  );
+
+  protected readonly paged = computed(() => {
+    const start = (this.page() - 1) * PAGE_SIZE;
+    return this.specialities().slice(start, start + PAGE_SIZE);
+  });
+
+  protected readonly pages = computed(() =>
+    Array.from({ length: this.totalPages() }, (_, i) => i + 1),
+  );
 
   private readonly countMap = computed(() => {
     const map = new Map<number, number>();
@@ -37,6 +53,9 @@ export class SpecialitiesListComponent implements OnInit {
     this.specService.list().subscribe();
     this.userService.list().subscribe();
   }
+
+  prev(): void { if (this.page() > 1) this.page.update(p => p - 1); }
+  next(): void { if (this.page() < this.totalPages()) this.page.update(p => p + 1); }
 
   doctorCount(specId: number): number {
     return this.countMap().get(specId) ?? 0;

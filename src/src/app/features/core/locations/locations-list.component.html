@@ -19,7 +19,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (l of locations(); track l.id) {
+      @for (l of paged(); track l.id) {
         <tr>
           <td class="cell-id">#{{ l.id }}</td>
           <td style="font-weight:700">{{ l.name }}</td>
@@ -39,6 +39,14 @@
       }
     </tbody>
   </table>
+</div>
+
+<div class="pagination">
+  <button type="button" class="pg-btn" [disabled]="page() === 1" (click)="prev()" aria-label="Página anterior">←</button>
+  @for (n of pages(); track n) {
+    <button type="button" class="pg-btn" [class.active]="page() === n" (click)="page.set(n)">{{ n }}</button>
+  }
+  <button type="button" class="pg-btn" [disabled]="page() === totalPages()" (click)="next()" aria-label="Página siguiente">→</button>
 </div>
 
 <app-location-form-modal

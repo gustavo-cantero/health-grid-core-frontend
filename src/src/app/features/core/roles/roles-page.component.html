@@ -24,7 +24,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (r of roles(); track r.id) {
+          @for (r of paged(); track r.id) {
             <tr>
               <td><span class="badge" [class]="'badge badge-' + r.color">{{ r.name }}</span></td>
               <td>
@@ -52,6 +52,13 @@
           }
         </tbody>
       </table>
+    </div>
+    <div class="pagination">
+      <button type="button" class="pg-btn" [disabled]="page() === 1" (click)="prev()" aria-label="Página anterior">←</button>
+      @for (n of pages(); track n) {
+        <button type="button" class="pg-btn" [class.active]="page() === n" (click)="page.set(n)">{{ n }}</button>
+      }
+      <button type="button" class="pg-btn" [disabled]="page() === totalPages()" (click)="next()" aria-label="Página siguiente">→</button>
     </div>
   }
   @case ('matrix') {

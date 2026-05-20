@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+
+const PAGE_SIZE = 10;
 import { LocationService } from '../../../core/services/location.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { Location } from '../../../core/models/location.model';
@@ -20,10 +22,27 @@ export class LocationsListComponent implements OnInit {
   protected readonly openCreate = signal<boolean>(false);
   protected readonly editing = signal<Location | null>(null);
   protected readonly deleting = signal<Location | null>(null);
+  protected readonly page = signal<number>(1);
+
+  protected readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.locations().length / PAGE_SIZE)),
+  );
+
+  protected readonly paged = computed(() => {
+    const start = (this.page() - 1) * PAGE_SIZE;
+    return this.locations().slice(start, start + PAGE_SIZE);
+  });
+
+  protected readonly pages = computed(() =>
+    Array.from({ length: this.totalPages() }, (_, i) => i + 1),
+  );
 
   ngOnInit(): void {
     this.locService.list().subscribe();
   }
+
+  prev(): void { if (this.page() > 1) this.page.update(p => p - 1); }
+  next(): void { if (this.page() < this.totalPages()) this.page.update(p => p + 1); }
 
   onCreated(l: Location): void {
     this.openCreate.set(false);

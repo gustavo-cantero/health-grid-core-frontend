@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+
+const PAGE_SIZE = 10;
 import { PermissionService } from '../../../core/services/permission.service';
 import { RoleService } from '../../../core/services/role.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -22,6 +24,20 @@ export class PermissionsListComponent implements OnInit {
   protected readonly openCreate = signal<boolean>(false);
   protected readonly editing = signal<Permission | null>(null);
   protected readonly deleting = signal<Permission | null>(null);
+  protected readonly page = signal<number>(1);
+
+  protected readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.permissions().length / PAGE_SIZE)),
+  );
+
+  protected readonly paged = computed(() => {
+    const start = (this.page() - 1) * PAGE_SIZE;
+    return this.permissions().slice(start, start + PAGE_SIZE);
+  });
+
+  protected readonly pages = computed(() =>
+    Array.from({ length: this.totalPages() }, (_, i) => i + 1),
+  );
 
   private readonly rolesByPerm = computed(() => {
     const map = new Map<number, string[]>();
@@ -39,6 +55,9 @@ export class PermissionsListComponent implements OnInit {
     this.permService.list().subscribe();
     this.roleService.list().subscribe();
   }
+
+  prev(): void { if (this.page() > 1) this.page.update(p => p - 1); }
+  next(): void { if (this.page() < this.totalPages()) this.page.update(p => p + 1); }
 
   rolesFor(permId: number): string {
     const list = this.rolesByPerm().get(permId);

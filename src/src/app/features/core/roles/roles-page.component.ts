@@ -8,6 +8,8 @@ import { RoleCreateModalComponent } from './role-create-modal.component';
 import { RoleEditModalComponent } from './role-edit-modal.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 
+const PAGE_SIZE = 10;
+
 type RolesTab = 'list' | 'matrix';
 
 @Component({
@@ -30,6 +32,20 @@ export class RolesPageComponent implements OnInit {
   protected readonly openCreate = signal<boolean>(false);
   protected readonly editing = signal<Role | null>(null);
   protected readonly deleting = signal<Role | null>(null);
+  protected readonly page = signal<number>(1);
+
+  protected readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.roles().length / PAGE_SIZE)),
+  );
+
+  protected readonly paged = computed(() => {
+    const start = (this.page() - 1) * PAGE_SIZE;
+    return this.roles().slice(start, start + PAGE_SIZE);
+  });
+
+  protected readonly pages = computed(() =>
+    Array.from({ length: this.totalPages() }, (_, i) => i + 1),
+  );
 
   private readonly matrixDraft = signal<Record<number, Set<number>>>({});
 
@@ -49,6 +65,9 @@ export class RolesPageComponent implements OnInit {
     this.userService.list().subscribe();
     this.refreshDraft();
   }
+
+  prev(): void { if (this.page() > 1) this.page.update(p => p - 1); }
+  next(): void { if (this.page() < this.totalPages()) this.page.update(p => p + 1); }
 
   userCount(roleId: number): number {
     return this.userCountMap().get(roleId) ?? 0;
