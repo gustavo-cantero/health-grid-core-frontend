@@ -51,13 +51,26 @@ export class ProfileEditModalComponent {
     });
   }
 
+  protected readonly loading = signal<boolean>(false);
+  protected readonly serverError = signal<string | null>(null);
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    this.auth.updateMyProfile(this.form.getRawValue());
-    this.toast.show('Perfil actualizado correctamente');
-    this.close.emit();
+    this.loading.set(true);
+    this.serverError.set(null);
+    this.auth.updateMyProfile(this.form.getRawValue()).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.toast.show('Perfil actualizado correctamente');
+        this.close.emit();
+      },
+      error: (err: Error) => {
+        this.loading.set(false);
+        this.serverError.set(err.message);
+      },
+    });
   }
 }

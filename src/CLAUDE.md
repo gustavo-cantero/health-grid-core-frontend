@@ -14,6 +14,8 @@ npx prettier --write .  # format code
 
 There is no lint script configured — prettier is the only formatter.
 
+`npm start` proxies API calls through `proxy.conf.json` (wired in `angular.json` → `serve.options.proxyConfig`) to `https://api.healthcare.cantero.ar`. This proxy is **required**: the API sends no CORS headers, so browser requests only work via the dev server. In development `environment.apiBaseUrl` is empty (relative URLs hit the proxy); in production it's the absolute API host (needs server-side CORS or same-origin hosting).
+
 ## Architecture
 
 **Angular 21** app using standalone components (no NgModules), signals for state, and lazy-loaded routes.
@@ -25,8 +27,10 @@ src/
   app/
     core/
       guards/       # authGuard (functional)
-      models/       # TypeScript interfaces (User, Role, Permission, Speciality, Location)
-      services/     # All data services (in-memory, signal-based)
+      models/       # Front-end interfaces (User, Role, …) + api.model.ts (raw API shapes)
+      interceptors/ # authInterceptor (Bearer token + 401 handling)
+      services/     # HTTP data services (signal-backed cache)
+      utils/        # toError (HttpErrorResponse → Error with API message)
     features/
       auth/         # login, register, forgot-password (public routes)
       core/         # users, roles, permissions, specialities, locations (protected)
@@ -50,11 +54,17 @@ Each component has three files in the same directory:
 
 Always use `templateUrl` and `styleUrls` with paths relative to the component TS file. Never use inline `template` or `styles`.
 
-### Data layer — all fake, no HTTP
+### Data layer — real HTTP against the Core API
 
-Every service (`UserService`, `RoleService`, etc.) stores data in a `signal<T[]>` and returns `Observable<T>` via `of(value).pipe(delay(300))`. There is no real backend. `AuthService` simulates login with any credentials (accepts any non-empty email/password pair).
+Services call the Core API (OpenAPI spec at `https://api.healthcare.cantero.ar/docs/swagger.yaml`, Bearer JWT) via `HttpClient`, but keep the **signal-backed cache** pattern: each service holds a private `signal<T[]>`, exposes it readonly (e.g. `users.users()`), and `tap()`s HTTP responses into it. Components still call `list().subscribe()` in `ngOnInit` to populate the store and read the signal in templates — pagination/search stay client-side.
 
-Services expose a readonly signal for the current state (e.g., `users.users()`) alongside observable-based mutation methods (`create`, `update`, `remove`).
+**Mapping is the key concern.** The front-end models use camelCase + ID arrays (`roleIds`, `permissionIds`) and a derived role `color`; the API uses snake_case + nested objects (`first_name`, `roles[]`, `permissions[]`) and paginated lists (`PaginatedResponse { data, total, pagination }`). Each service has a `fromApi()` mapper. List calls request `pageSize=1000` to fetch everything at once. Role `color` has no API equivalent — it's derived deterministically from the id.
+
+**Relationship edits diff, then call sub-resource endpoints.** `UserService.update()` / `RoleService.update()` accept the same patch shape the modals already send (e.g. `{ roleIds: [...] }`), diff it against the cached entity, and fire the per-item `POST`/`DELETE` endpoints (`/users/{id}/roles`, `/roles/{id}/permissions`, …) via `forkJoin`, then re-`GET` the entity to refresh the cache.
+
+**Auth.** `AuthService` persists the JWT (`hg_token`) and a derived `SessionUser` (`hg_session`, includes `id`) in `localStorage`. `authInterceptor` attaches the Bearer header to API requests and, on 401, clears the session and redirects to `/login`. API errors (`{ error: string }`) are normalized by `toError()` so components can show `err.message`.
+
+This mapper-in-the-service design means **components, templates, and the front-end models are untouched** when wiring endpoints — change services, not callers. The API also exposes Events endpoints (types/subscriptions/log) that currently have no UI and no service.
 
 ### Routing
 

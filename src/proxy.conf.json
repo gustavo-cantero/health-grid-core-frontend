@@ -1,0 +1,32 @@
+{
+  "/auth": {
+    "target": "https://api.healthcare.cantero.ar",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "/users": {
+    "target": "https://api.healthcare.cantero.ar",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "/roles": {
+    "target": "https://api.healthcare.cantero.ar",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "/permissions": {
+    "target": "https://api.healthcare.cantero.ar",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "/specialities": {
+    "target": "https://api.healthcare.cantero.ar",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "/locations": {
+    "target": "https://api.healthcare.cantero.ar",
+    "secure": true,
+    "changeOrigin": true
+  }
+}

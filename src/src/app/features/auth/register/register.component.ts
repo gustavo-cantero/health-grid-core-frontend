@@ -49,7 +49,8 @@ export class RegisterComponent {
       next: () => {
         this.loading.set(false);
         this.success.set(true);
-        setTimeout(() => this.router.navigateByUrl('/login'), 1500);
+        // Register already returns a token (auto-login) → go straight to the app.
+        this.router.navigateByUrl('/core/users');
       },
       error: (err: Error) => {
         this.loading.set(false);

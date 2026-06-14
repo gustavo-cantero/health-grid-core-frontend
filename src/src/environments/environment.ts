@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api.healthgrid.com',
+  apiBaseUrl: 'https://api.healthcare.cantero.ar',
 };

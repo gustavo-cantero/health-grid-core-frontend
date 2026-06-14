@@ -1,27 +1,32 @@
-import { Injectable, signal } from '@angular/core';
-import { Observable, delay, of } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map, tap, throwError, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CreateSpecialityPayload, Speciality } from '../models/speciality.model';
+import { ApiSpeciality, PaginatedResponse } from '../models/api.model';
+import { toError } from '../utils/api-error';
 
-const SEED: Speciality[] = [
-  { id: 1, name: 'Cardiología' },
-  { id: 2, name: 'Neurología' },
-  { id: 3, name: 'Clínica médica' },
-  { id: 4, name: 'Pediatría' },
-  { id: 5, name: 'Traumatología' },
-];
+const PAGE_SIZE = 1000;
 
-const FAKE_DELAY_MS = 250;
+function fromApi(s: ApiSpeciality): Speciality {
+  return { id: s.id, name: s.name };
+}
 
 @Injectable({ providedIn: 'root' })
 export class SpecialityService {
+  private readonly http = inject(HttpClient);
   readonly baseUrl = `${environment.apiBaseUrl}/specialities`;
 
-  private readonly store = signal<Speciality[]>(SEED);
+  private readonly store = signal<Speciality[]>([]);
   readonly specialities = this.store.asReadonly();
 
   list(): Observable<Speciality[]> {
-    return of(this.store()).pipe(delay(FAKE_DELAY_MS));
+    const params = new HttpParams().set('page', 1).set('pageSize', PAGE_SIZE);
+    return this.http.get<PaginatedResponse<ApiSpeciality>>(this.baseUrl, { params }).pipe(
+      map(res => res.data.map(fromApi)),
+      tap(items => this.store.set(items)),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 
   getById(id: number): Speciality | undefined {
@@ -29,26 +34,26 @@ export class SpecialityService {
   }
 
   create(payload: CreateSpecialityPayload): Observable<Speciality> {
-    const nextId = this.store().reduce((max, s) => Math.max(max, s.id), 0) + 1;
-    const created: Speciality = { id: nextId, name: payload.name };
-    this.store.update(list => [...list, created]);
-    return of(created).pipe(delay(FAKE_DELAY_MS));
+    return this.http.post<ApiSpeciality>(this.baseUrl, { name: payload.name }).pipe(
+      map(fromApi),
+      tap(created => this.store.update(list => [...list, created])),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 
   update(id: number, payload: CreateSpecialityPayload): Observable<Speciality> {
-    let updated!: Speciality;
-    this.store.update(list =>
-      list.map(s => {
-        if (s.id !== id) return s;
-        updated = { ...s, name: payload.name };
-        return updated;
-      }),
+    return this.http.put<ApiSpeciality>(`${this.baseUrl}/${id}`, { name: payload.name }).pipe(
+      map(fromApi),
+      tap(updated => this.store.update(list => list.map(s => (s.id === id ? updated : s)))),
+      catchError(err => throwError(() => toError(err))),
     );
-    return of(updated).pipe(delay(FAKE_DELAY_MS));
   }
 
   remove(id: number): Observable<void> {
-    this.store.update(list => list.filter(s => s.id !== id));
-    return of(undefined).pipe(delay(FAKE_DELAY_MS));
+    return this.http.delete(`${this.baseUrl}/${id}`).pipe(
+      map(() => undefined),
+      tap(() => this.store.update(list => list.filter(s => s.id !== id))),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 }

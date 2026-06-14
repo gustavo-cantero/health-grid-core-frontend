@@ -1,25 +1,32 @@
-import { Injectable, signal } from '@angular/core';
-import { Observable, delay, of } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map, tap, throwError, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CreateLocationPayload, Location } from '../models/location.model';
+import { ApiLocation, PaginatedResponse } from '../models/api.model';
+import { toError } from '../utils/api-error';
 
-const SEED: Location[] = [
-  { id: 1, name: 'Sede Central', address: 'Av. Corrientes 1234', city: 'Buenos Aires', country: 'Argentina' },
-  { id: 2, name: 'Sede Norte', address: 'Av. Santa Fe 5678', city: 'Buenos Aires', country: 'Argentina' },
-  { id: 3, name: 'Sede Oeste', address: 'San Martín 900', city: 'Morón', country: 'Argentina' },
-];
+const PAGE_SIZE = 1000;
 
-const FAKE_DELAY_MS = 250;
+function fromApi(l: ApiLocation): Location {
+  return { id: l.id, name: l.name, address: l.address, city: l.city, country: l.country };
+}
 
 @Injectable({ providedIn: 'root' })
 export class LocationService {
+  private readonly http = inject(HttpClient);
   readonly baseUrl = `${environment.apiBaseUrl}/locations`;
 
-  private readonly store = signal<Location[]>(SEED);
+  private readonly store = signal<Location[]>([]);
   readonly locations = this.store.asReadonly();
 
   list(): Observable<Location[]> {
-    return of(this.store()).pipe(delay(FAKE_DELAY_MS));
+    const params = new HttpParams().set('page', 1).set('pageSize', PAGE_SIZE);
+    return this.http.get<PaginatedResponse<ApiLocation>>(this.baseUrl, { params }).pipe(
+      map(res => res.data.map(fromApi)),
+      tap(items => this.store.set(items)),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 
   getById(id: number): Location | undefined {
@@ -27,26 +34,26 @@ export class LocationService {
   }
 
   create(payload: CreateLocationPayload): Observable<Location> {
-    const nextId = this.store().reduce((max, l) => Math.max(max, l.id), 0) + 1;
-    const created: Location = { id: nextId, ...payload };
-    this.store.update(list => [...list, created]);
-    return of(created).pipe(delay(FAKE_DELAY_MS));
+    return this.http.post<ApiLocation>(this.baseUrl, payload).pipe(
+      map(fromApi),
+      tap(created => this.store.update(list => [...list, created])),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 
   update(id: number, payload: CreateLocationPayload): Observable<Location> {
-    let updated!: Location;
-    this.store.update(list =>
-      list.map(l => {
-        if (l.id !== id) return l;
-        updated = { ...l, ...payload };
-        return updated;
-      }),
+    return this.http.put<ApiLocation>(`${this.baseUrl}/${id}`, payload).pipe(
+      map(fromApi),
+      tap(updated => this.store.update(list => list.map(l => (l.id === id ? updated : l)))),
+      catchError(err => throwError(() => toError(err))),
     );
-    return of(updated).pipe(delay(FAKE_DELAY_MS));
   }
 
   remove(id: number): Observable<void> {
-    this.store.update(list => list.filter(l => l.id !== id));
-    return of(undefined).pipe(delay(FAKE_DELAY_MS));
+    return this.http.delete(`${this.baseUrl}/${id}`).pipe(
+      map(() => undefined),
+      tap(() => this.store.update(list => list.filter(l => l.id !== id))),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 }

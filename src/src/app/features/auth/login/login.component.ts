@@ -19,8 +19,8 @@ export class LoginComponent {
   protected readonly loading = signal<boolean>(false);
 
   protected readonly form = this.fb.nonNullable.group({
-    email: ['admin@healthgrid.com', [Validators.required, Validators.email]],
-    password: ['Admin1234', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]],
   });
 
   onSubmit(): void {

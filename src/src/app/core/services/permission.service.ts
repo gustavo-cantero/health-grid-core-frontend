@@ -1,29 +1,32 @@
-import { Injectable, signal } from '@angular/core';
-import { Observable, delay, of } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map, tap, throwError, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CreatePermissionPayload, Permission } from '../models/permission.model';
+import { ApiPermission, PaginatedResponse } from '../models/api.model';
+import { toError } from '../utils/api-error';
 
-const SEED: Permission[] = [
-  { id: 1, name: 'users:read' },
-  { id: 2, name: 'users:write' },
-  { id: 3, name: 'roles:manage' },
-  { id: 4, name: 'patients:read' },
-  { id: 5, name: 'patients:write' },
-  { id: 6, name: 'appointments:write' },
-  { id: 7, name: 'reports:view' },
-];
+const PAGE_SIZE = 1000;
 
-const FAKE_DELAY_MS = 250;
+function fromApi(p: ApiPermission): Permission {
+  return { id: p.id, name: p.name };
+}
 
 @Injectable({ providedIn: 'root' })
 export class PermissionService {
+  private readonly http = inject(HttpClient);
   readonly baseUrl = `${environment.apiBaseUrl}/permissions`;
 
-  private readonly store = signal<Permission[]>(SEED);
+  private readonly store = signal<Permission[]>([]);
   readonly permissions = this.store.asReadonly();
 
   list(): Observable<Permission[]> {
-    return of(this.store()).pipe(delay(FAKE_DELAY_MS));
+    const params = new HttpParams().set('page', 1).set('pageSize', PAGE_SIZE);
+    return this.http.get<PaginatedResponse<ApiPermission>>(this.baseUrl, { params }).pipe(
+      map(res => res.data.map(fromApi)),
+      tap(items => this.store.set(items)),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 
   getById(id: number): Permission | undefined {
@@ -31,26 +34,26 @@ export class PermissionService {
   }
 
   create(payload: CreatePermissionPayload): Observable<Permission> {
-    const nextId = this.store().reduce((max, p) => Math.max(max, p.id), 0) + 1;
-    const created: Permission = { id: nextId, name: payload.name };
-    this.store.update(list => [...list, created]);
-    return of(created).pipe(delay(FAKE_DELAY_MS));
+    return this.http.post<ApiPermission>(this.baseUrl, { name: payload.name }).pipe(
+      map(fromApi),
+      tap(created => this.store.update(list => [...list, created])),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 
   update(id: number, payload: CreatePermissionPayload): Observable<Permission> {
-    let updated!: Permission;
-    this.store.update(list =>
-      list.map(p => {
-        if (p.id !== id) return p;
-        updated = { ...p, name: payload.name };
-        return updated;
-      }),
+    return this.http.put<ApiPermission>(`${this.baseUrl}/${id}`, { name: payload.name }).pipe(
+      map(fromApi),
+      tap(updated => this.store.update(list => list.map(p => (p.id === id ? updated : p)))),
+      catchError(err => throwError(() => toError(err))),
     );
-    return of(updated).pipe(delay(FAKE_DELAY_MS));
   }
 
   remove(id: number): Observable<void> {
-    this.store.update(list => list.filter(p => p.id !== id));
-    return of(undefined).pipe(delay(FAKE_DELAY_MS));
+    return this.http.delete(`${this.baseUrl}/${id}`).pipe(
+      map(() => undefined),
+      tap(() => this.store.update(list => list.filter(p => p.id !== id))),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 }

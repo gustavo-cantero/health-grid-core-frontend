@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../shared/services/toast.service';
 
-type ResetStep = 1 | 2 | 3;
+type ResetStep = 1 | 2;
 
 @Component({
   selector: 'app-forgot-password',
@@ -25,15 +25,16 @@ export class ForgotPasswordComponent {
   protected readonly completed = signal<boolean>(false);
   protected readonly currentStep = computed(() => this.step());
 
+  private email = '';
+
   protected readonly emailForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
   });
 
-  protected readonly codeForm = this.fb.nonNullable.group({
+  // The API validates the code only on the final reset call, so code + new
+  // password are captured together in a single step.
+  protected readonly resetForm = this.fb.nonNullable.group({
     code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
-  });
-
-  protected readonly newPasswordForm = this.fb.nonNullable.group({
     password: ['', [Validators.required, Validators.minLength(6)]],
     passwordConfirm: ['', [Validators.required]],
   });
@@ -44,8 +45,9 @@ export class ForgotPasswordComponent {
       this.error.set('Ingresá un email válido.');
       return;
     }
+    this.email = this.emailForm.getRawValue().email;
     this.loading.set(true);
-    this.auth.requestReset(this.emailForm.getRawValue().email).subscribe({
+    this.auth.requestReset(this.email).subscribe({
       next: () => {
         this.loading.set(false);
         this.step.set(2);
@@ -57,30 +59,16 @@ export class ForgotPasswordComponent {
     });
   }
 
-  submitCode(): void {
+  submitReset(): void {
     this.error.set(null);
-    if (this.codeForm.invalid) {
-      this.error.set('El código debe tener 6 dígitos.');
-      return;
-    }
-    this.loading.set(true);
-    this.auth.verifyResetCode(this.codeForm.getRawValue().code).subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.step.set(3);
-      },
-      error: (err: Error) => {
-        this.loading.set(false);
-        this.error.set(err.message);
-      },
-    });
-  }
-
-  submitNewPassword(): void {
-    this.error.set(null);
-    const { password, passwordConfirm } = this.newPasswordForm.getRawValue();
-    if (this.newPasswordForm.invalid) {
-      this.error.set('La contraseña debe tener al menos 6 caracteres.');
+    const { code, password, passwordConfirm } = this.resetForm.getRawValue();
+    if (this.resetForm.invalid) {
+      if (this.resetForm.controls.code.invalid) {
+        this.error.set('El código debe tener 6 dígitos.');
+      } else {
+        this.error.set('La contraseña debe tener al menos 6 caracteres.');
+      }
+      this.resetForm.markAllAsTouched();
       return;
     }
     if (password !== passwordConfirm) {
@@ -88,7 +76,7 @@ export class ForgotPasswordComponent {
       return;
     }
     this.loading.set(true);
-    this.auth.resetPassword(password).subscribe({
+    this.auth.resetPassword(this.email, code, password).subscribe({
       next: () => {
         this.loading.set(false);
         this.completed.set(true);

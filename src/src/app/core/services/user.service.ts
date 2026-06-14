@@ -1,42 +1,28 @@
-import { Injectable, signal } from '@angular/core';
-import { Observable, delay, of } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, forkJoin, map, of, switchMap, tap, throwError, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CreateUserPayload, UpdateUserPayload, User } from '../models/user.model';
+import { ApiUser, PaginatedResponse } from '../models/api.model';
+import { toError } from '../utils/api-error';
 
-const SEED: User[] = [
-  {
-    id: 1, firstName: 'María', lastName: 'Alvarez', email: 'm.alvarez@healthgrid.com',
-    createdAt: '2025-01-12T00:00:00Z',
-    roleIds: [2], specialityIds: [1], locationIds: [1],
-  },
-  {
-    id: 2, firstName: 'Juan', lastName: 'Rodríguez', email: 'j.rodriguez@healthgrid.com',
-    createdAt: '2025-03-03T00:00:00Z',
-    roleIds: [1], specialityIds: [], locationIds: [1, 2],
-  },
-  {
-    id: 3, firstName: 'Sandra', lastName: 'López', email: 's.lopez@healthgrid.com',
-    createdAt: '2025-04-20T00:00:00Z',
-    roleIds: [3], specialityIds: [], locationIds: [2],
-  },
-  {
-    id: 4, firstName: 'Carlos', lastName: 'Pérez', email: 'c.perez@healthgrid.com',
-    createdAt: '2025-02-15T00:00:00Z',
-    roleIds: [2], specialityIds: [2], locationIds: [1],
-  },
-];
-
-const FAKE_DELAY_MS = 300;
+const PAGE_SIZE = 1000;
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
+  private readonly http = inject(HttpClient);
   readonly baseUrl = `${environment.apiBaseUrl}/users`;
 
-  private readonly store = signal<User[]>(SEED);
+  private readonly store = signal<User[]>([]);
   readonly users = this.store.asReadonly();
 
   list(): Observable<User[]> {
-    return of(this.store()).pipe(delay(FAKE_DELAY_MS));
+    const params = new HttpParams().set('page', 1).set('pageSize', PAGE_SIZE);
+    return this.http.get<PaginatedResponse<ApiUser>>(this.baseUrl, { params }).pipe(
+      map(res => res.data.map(fromApi)),
+      tap(users => this.store.set(users)),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 
   getById(id: number): User | undefined {
@@ -44,71 +30,117 @@ export class UserService {
   }
 
   create(payload: CreateUserPayload): Observable<User> {
-    const nextId = this.store().reduce((max, u) => Math.max(max, u.id), 0) + 1;
-    const created: User = {
-      id: nextId,
-      firstName: payload.firstName,
-      lastName: payload.lastName,
+    const body = {
+      first_name: payload.firstName,
+      last_name: payload.lastName,
       email: payload.email,
-      createdAt: new Date().toISOString(),
-      roleIds: [], specialityIds: [], locationIds: [],
+      password: payload.password,
     };
-    this.store.update(list => [...list, created]);
-    return of(created).pipe(delay(FAKE_DELAY_MS));
+    return this.http.post<ApiUser>(this.baseUrl, body).pipe(
+      map(fromApi),
+      tap(created => this.store.update(list => [...list, created])),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 
   update(id: number, patch: UpdateUserPayload): Observable<User> {
-    let updated!: User;
-    this.store.update(list =>
-      list.map(u => {
-        if (u.id !== id) return u;
-        updated = { ...u, ...patch };
-        return updated;
-      }),
+    const current = this.getById(id);
+    const calls: Observable<unknown>[] = [];
+
+    if (patch.firstName !== undefined || patch.lastName !== undefined || patch.email !== undefined) {
+      const body: Record<string, string> = {};
+      if (patch.firstName !== undefined) body['first_name'] = patch.firstName;
+      if (patch.lastName !== undefined) body['last_name'] = patch.lastName;
+      if (patch.email !== undefined) body['email'] = patch.email;
+      calls.push(this.http.put<ApiUser>(`${this.baseUrl}/${id}`, body));
+    }
+
+    if (patch.roleIds !== undefined) {
+      this.collectRelationCalls(calls, id, 'roles', 'role_id', current?.roleIds ?? [], patch.roleIds);
+    }
+    if (patch.specialityIds !== undefined) {
+      this.collectRelationCalls(calls, id, 'specialities', 'speciality_id', current?.specialityIds ?? [], patch.specialityIds);
+    }
+    if (patch.locationIds !== undefined) {
+      this.collectRelationCalls(calls, id, 'locations', 'location_id', current?.locationIds ?? [], patch.locationIds);
+    }
+
+    const ops$: Observable<unknown> = calls.length ? forkJoin(calls) : of(null);
+    return ops$.pipe(
+      switchMap(() => this.http.get<ApiUser>(`${this.baseUrl}/${id}`)),
+      map(fromApi),
+      tap(updated => this.store.update(list => list.map(u => (u.id === id ? updated : u)))),
+      catchError(err => throwError(() => toError(err))),
     );
-    return of(updated).pipe(delay(FAKE_DELAY_MS));
   }
 
   remove(id: number): Observable<void> {
-    this.store.update(list => list.filter(u => u.id !== id));
-    return of(undefined).pipe(delay(FAKE_DELAY_MS));
+    return this.http.delete(`${this.baseUrl}/${id}`).pipe(
+      map(() => undefined),
+      tap(() => this.store.update(list => list.filter(u => u.id !== id))),
+      catchError(err => throwError(() => toError(err))),
+    );
   }
 
   assignRole(userId: number, roleId: number): Observable<void> {
-    return this.toggleId(userId, 'roleIds', roleId, true);
+    return this.relation('post', userId, 'roles', { role_id: roleId });
   }
   removeRole(userId: number, roleId: number): Observable<void> {
-    return this.toggleId(userId, 'roleIds', roleId, false);
+    return this.relation('delete', userId, `roles/${roleId}`);
   }
   assignSpeciality(userId: number, specialityId: number): Observable<void> {
-    return this.toggleId(userId, 'specialityIds', specialityId, true);
+    return this.relation('post', userId, 'specialities', { speciality_id: specialityId });
   }
   removeSpeciality(userId: number, specialityId: number): Observable<void> {
-    return this.toggleId(userId, 'specialityIds', specialityId, false);
+    return this.relation('delete', userId, `specialities/${specialityId}`);
   }
   assignLocation(userId: number, locationId: number): Observable<void> {
-    return this.toggleId(userId, 'locationIds', locationId, true);
+    return this.relation('post', userId, 'locations', { location_id: locationId });
   }
   removeLocation(userId: number, locationId: number): Observable<void> {
-    return this.toggleId(userId, 'locationIds', locationId, false);
+    return this.relation('delete', userId, `locations/${locationId}`);
   }
 
-  private toggleId(
+  private collectRelationCalls(
+    calls: Observable<unknown>[],
     userId: number,
-    field: 'roleIds' | 'specialityIds' | 'locationIds',
-    value: number,
-    add: boolean,
-  ): Observable<void> {
-    this.store.update(list =>
-      list.map(u => {
-        if (u.id !== userId) return u;
-        const current = u[field];
-        const next = add
-          ? (current.includes(value) ? current : [...current, value])
-          : current.filter(v => v !== value);
-        return { ...u, [field]: next };
-      }),
-    );
-    return of(undefined).pipe(delay(FAKE_DELAY_MS));
+    resource: 'roles' | 'specialities' | 'locations',
+    idKey: 'role_id' | 'speciality_id' | 'location_id',
+    currentIds: number[],
+    nextIds: number[],
+  ): void {
+    for (const value of nextIds.filter(v => !currentIds.includes(v))) {
+      calls.push(this.http.post(`${this.baseUrl}/${userId}/${resource}`, { [idKey]: value }));
+    }
+    for (const value of currentIds.filter(v => !nextIds.includes(v))) {
+      calls.push(this.http.delete(`${this.baseUrl}/${userId}/${resource}/${value}`));
+    }
   }
+
+  private relation(
+    method: 'post' | 'delete',
+    userId: number,
+    path: string,
+    body?: Record<string, number>,
+  ): Observable<void> {
+    const url = `${this.baseUrl}/${userId}/${path}`;
+    const req$ = method === 'post' ? this.http.post(url, body ?? {}) : this.http.delete(url);
+    return req$.pipe(
+      map(() => undefined),
+      catchError(err => throwError(() => toError(err))),
+    );
+  }
+}
+
+function fromApi(apiUser: ApiUser): User {
+  return {
+    id: apiUser.id,
+    firstName: apiUser.first_name,
+    lastName: apiUser.last_name,
+    email: apiUser.email,
+    createdAt: apiUser.created_at,
+    roleIds: (apiUser.roles ?? []).map(r => r.id),
+    specialityIds: (apiUser.specialities ?? []).map(s => s.id),
+    locationIds: (apiUser.locations ?? []).map(l => l.id),
+  };
 }

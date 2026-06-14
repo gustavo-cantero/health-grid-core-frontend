@@ -1,59 +1,81 @@
 # HealthGrid
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.11.
+Panel de administración (módulo **Core**) de HealthGrid, construido con **Angular 21**. Gestiona usuarios, roles, permisos, especialidades y ubicaciones, con autenticación por JWT contra la Core API.
 
-## Development server
+## Stack
 
-To start a local development server, run:
+- **Angular 21** — componentes standalone (sin NgModules), señales (`signal`) para el estado y rutas con lazy loading.
+- **Reactive Forms** + control flow nativo (`@if` / `@for`).
+- **lucide-angular** para iconos.
+- **Vitest** para tests unitarios.
+- **Prettier** como único formateador (no hay linter configurado).
 
-```bash
-ng serve
-```
+## Requisitos
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Node.js (versión compatible con Angular 21) y npm.
+- `npm install` para instalar dependencias.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Desarrollo
 
 ```bash
-ng generate --help
+npm start          # dev server en http://localhost:4200
+npm run build      # build de producción (sale a dist/)
+npm test           # tests unitarios con Vitest
+npm run watch      # build de desarrollo en modo watch
+npx prettier --write .   # formatear el código
 ```
 
-## Building
+Una vez levantado el server, abrí `http://localhost:4200/`. La app recarga automáticamente al guardar cambios.
 
-To build the project run:
+## Integración con la API y proxy (CORS)
+
+La app consume la **Core API** (`https://api.healthcare.cantero.ar`, autenticación Bearer JWT; spec OpenAPI en `https://api.healthcare.cantero.ar/docs/swagger.yaml`).
+
+La API **no envía headers CORS**, por lo que el navegador no puede llamarla directamente. `npm start` usa el proxy de Angular (`proxy.conf.json`, declarado en `angular.json`) para redirigir las llamadas al backend desde el dev server:
+
+- **Desarrollo**: `environment.apiBaseUrl` está vacío → las URLs son relativas (`/auth/login`, `/users`, …) y pasan por el proxy.
+- **Producción**: `environment.apiBaseUrl` apunta al host real. Requiere CORS habilitado en el servidor o servir el front desde el mismo origen.
+
+La configuración de entornos vive en `src/environments/`.
+
+## Estructura
+
+```
+src/app/
+  core/
+    guards/         # authGuard (funcional)
+    interceptors/   # authInterceptor (agrega Bearer y maneja 401)
+    models/         # interfaces del front + api.model.ts (formas crudas de la API)
+    services/       # servicios HTTP con caché en señales
+    utils/          # toError (normaliza errores de la API)
+  features/
+    auth/           # login, register, forgot-password (rutas públicas)
+    core/           # users, roles, permissions, specialities, locations (protegidas)
+  layout/           # shell, sidebar, modales de perfil y contraseña
+  shared/           # ToastService + componentes UI reutilizables (modal, toast, chips-input)
+src/styles.scss     # todos los estilos globales
+```
+
+### Capa de datos
+
+Cada servicio mantiene una caché privada en `signal<T[]>` (expuesta como readonly), llama a la API con `HttpClient` y vuelca la respuesta en la señal con `tap()`. Los modelos del front usan camelCase y arrays de IDs (`roleIds`, `permissionIds`); cada servicio mapea desde la forma anidada/snake_case de la API (`fromApi()`). Las ediciones de relaciones (roles, permisos, etc.) hacen *diff* contra la caché y disparan los endpoints `POST`/`DELETE` de sub-recursos.
+
+### Autenticación
+
+`AuthService` persiste el JWT (`hg_token`) y un `SessionUser` derivado (`hg_session`) en `localStorage`. `authInterceptor` agrega el header `Authorization: Bearer` a las llamadas a la API y, ante un 401, limpia la sesión y redirige a `/login`. Las rutas protegidas usan `authGuard`.
+
+## Build
 
 ```bash
-ng build
+npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Compila el proyecto en `dist/`. El build de producción optimiza la aplicación por defecto.
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Tests
 
 ```bash
-ng test
+npm test
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Ejecuta los tests unitarios con [Vitest](https://vitest.dev/).
