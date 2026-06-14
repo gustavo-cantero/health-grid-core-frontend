@@ -14,7 +14,7 @@ Panel de administración para gestión de personal de salud, desarrollado con An
 - **Autenticación** — login, registro y recuperación de contraseña
 - **Perfil** — edición de datos personales y cambio de contraseña desde la barra lateral
 
-> Toda la capa de datos es en memoria (sin backend real). El login acepta cualquier combinación no vacía de email y contraseña.
+> La app consume la **Core API** real (`https://api.healthcare.cantero.ar`, autenticación Bearer JWT). Como la API no envía headers CORS, en desarrollo las llamadas se redirigen mediante el proxy de Angular (ver más abajo).
 
 ## Tecnologías
 
@@ -58,7 +58,18 @@ npm start
 
 Abrí el navegador en `http://localhost:4200`. La app se recarga automáticamente al guardar cambios.
 
-Para ingresar, usá cualquier combinación no vacía de email y contraseña (no hay backend real).
+Para ingresar necesitás credenciales válidas de la Core API (o registrá una cuenta nueva desde `/register`).
+
+## Integración con la API y proxy (CORS)
+
+La app consume la **Core API** (`https://api.healthcare.cantero.ar`, Bearer JWT; spec OpenAPI en `https://api.healthcare.cantero.ar/docs/swagger.yaml`).
+
+La API **no envía headers CORS**, así que el navegador no puede llamarla directamente. `npm start` usa el proxy de Angular (`src/proxy.conf.json`, declarado en `src/angular.json`) para redirigir las llamadas desde el dev server:
+
+- **Desarrollo**: `environment.apiBaseUrl` está vacío → las URLs son relativas (`/auth/login`, `/users`, …) y pasan por el proxy.
+- **Producción**: `environment.apiBaseUrl` apunta al host real; requiere CORS habilitado en el servidor o servir el front desde el mismo origen.
+
+La configuración de entornos está en `src/src/environments/`.
 
 ## Otros comandos
 
@@ -83,8 +94,10 @@ src/
   app/
     core/
       guards/       # authGuard (funcional)
-      models/       # Interfaces TypeScript (User, Role, Permission, Speciality, Location)
-      services/     # Servicios de datos (en memoria, basados en signals)
+      interceptors/ # authInterceptor (agrega Bearer y maneja 401)
+      models/       # Interfaces del front + api.model.ts (formas crudas de la API)
+      services/     # Servicios HTTP con caché en signals
+      utils/        # toError (normaliza errores de la API)
     features/
       auth/         # login, register, forgot-password (rutas públicas)
       core/         # users, roles, permissions, specialities, locations (protegidas)
@@ -104,8 +117,10 @@ src/
 ## Patrones de arquitectura
 
 - **Componentes standalone** sin NgModules
-- **Signals** para estado local y en servicios
+- **Signals** para estado local y como caché en los servicios
 - **Lazy loading** en todas las rutas
+- **Capa de datos HTTP**: cada servicio llama a la Core API con `HttpClient`, mapea la respuesta (snake_case/anidada → camelCase/arrays de IDs) y la cachea en una señal readonly; los componentes leen la señal sin cambios
+- **Autenticación**: JWT + `SessionUser` en `localStorage`, header `Authorization` vía `authInterceptor` y rutas protegidas con `authGuard`
 - **Reactive Forms** con validación y marcado de errores al enviar
 - **Modales** centralizados mediante `<app-modal>` (foco, escape, `aria-modal`)
 - Estilos globales en `styles.scss`; variables CSS en `:root`
