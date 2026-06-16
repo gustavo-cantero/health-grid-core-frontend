@@ -3,7 +3,7 @@
 <p class="page-subtitle">Creá y administrá los permisos que se asignan a los roles.</p>
 
 <div style="text-align:right;margin-bottom:16px">
-  <button type="button" class="btn-main" (click)="openCreate.set(true)">+ Nuevo permiso</button>
+  <button type="button" class="btn-main" *hgHasPermission="'permissions:manage'" (click)="openCreate.set(true)">+ Nuevo permiso</button>
 </div>
 
 <div class="table-wrap">
@@ -24,8 +24,8 @@
           <td>{{ rolesFor(p.id) }}</td>
           <td>
             <div class="actions">
-              <button type="button" class="btn-outline" (click)="editing.set(p)">Editar</button>
-              <button type="button" class="btn-danger" (click)="deleting.set(p)">Eliminar</button>
+              <button type="button" class="btn-outline" *hgHasPermission="'permissions:manage'" (click)="edit(p)">Editar</button>
+              <button type="button" class="btn-danger" *hgHasPermission="'permissions:manage'" (click)="deleting.set(p)">Eliminar</button>
             </div>
           </td>
         </tr>

@@ -3,7 +3,7 @@
 <p class="page-subtitle">Administrá las especialidades médicas disponibles en el sistema.</p>
 
 <div style="text-align:right;margin-bottom:16px">
-  <button type="button" class="btn-main" (click)="openCreate.set(true)">+ Nueva especialidad</button>
+  <button type="button" class="btn-main" *hgHasPermission="'specialities:manage'" (click)="openCreate.set(true)">+ Nueva especialidad</button>
 </div>
 
 <div class="table-wrap">
@@ -24,8 +24,8 @@
           <td>{{ doctorCount(s.id) }}</td>
           <td>
             <div class="actions">
-              <button type="button" class="btn-outline" (click)="editing.set(s)">Editar</button>
-              <button type="button" class="btn-danger" (click)="deleting.set(s)">Eliminar</button>
+              <button type="button" class="btn-outline" *hgHasPermission="'specialities:manage'" (click)="edit(s)">Editar</button>
+              <button type="button" class="btn-danger" *hgHasPermission="'specialities:manage'" (click)="deleting.set(s)">Eliminar</button>
             </div>
           </td>
         </tr>

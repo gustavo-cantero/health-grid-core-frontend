@@ -33,6 +33,15 @@ export class SpecialityService {
     return this.store().find(s => s.id === id);
   }
 
+  // Pide el detalle de la especialidad a la API y refresca la copia cacheada.
+  get(id: number): Observable<Speciality> {
+    return this.http.get<ApiSpeciality>(`${this.baseUrl}/${id}`).pipe(
+      map(fromApi),
+      tap(item => this.store.update(list => list.map(s => (s.id === id ? item : s)))),
+      catchError(err => throwError(() => toError(err))),
+    );
+  }
+
   create(payload: CreateSpecialityPayload): Observable<Speciality> {
     return this.http.post<ApiSpeciality>(this.baseUrl, { name: payload.name }).pipe(
       map(fromApi),

@@ -1,8 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { ConfirmUnsavedComponent } from '../../../shared/ui/confirm-unsaved/confirm-unsaved.component';
-import { ChipsInputComponent, ChipOption } from '../../../shared/ui/chips-input/chips-input.component';
+import {
+  ChipsInputComponent,
+  ChipOption,
+} from '../../../shared/ui/chips-input/chips-input.component';
+import { HasPermissionDirective } from '../../../core/auth/has-permission.directive';
 import { UserService } from '../../../core/services/user.service';
 import { RoleService } from '../../../core/services/role.service';
 import { SpecialityService } from '../../../core/services/speciality.service';
@@ -14,7 +27,13 @@ type EditTab = 'datos' | 'roles' | 'specs' | 'locs';
 
 @Component({
   selector: 'app-user-edit-modal',
-  imports: [ModalComponent, ReactiveFormsModule, ChipsInputComponent, ConfirmUnsavedComponent],
+  imports: [
+    ModalComponent,
+    ReactiveFormsModule,
+    ChipsInputComponent,
+    ConfirmUnsavedComponent,
+    HasPermissionDirective,
+  ],
   templateUrl: './user-edit-modal.component.html',
   styleUrls: ['./user-edit-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,36 +71,42 @@ export class UserEditModalComponent {
   protected readonly draftLocIds = signal<number[]>([]);
 
   protected readonly assignedRoles = computed<ChipOption[]>(() =>
-    this.roles.roles()
-      .filter(r => this.draftRoleIds().includes(r.id))
-      .map(r => ({ id: r.id, label: r.name })),
+    this.roles
+      .roles()
+      .filter((r) => this.draftRoleIds().includes(r.id))
+      .map((r) => ({ id: r.id, label: r.name })),
   );
   protected readonly availableRoles = computed<ChipOption[]>(() =>
-    this.roles.roles()
-      .filter(r => !this.draftRoleIds().includes(r.id))
-      .map(r => ({ id: r.id, label: r.name })),
+    this.roles
+      .roles()
+      .filter((r) => !this.draftRoleIds().includes(r.id))
+      .map((r) => ({ id: r.id, label: r.name })),
   );
 
   protected readonly assignedSpecs = computed<ChipOption[]>(() =>
-    this.specs.specialities()
-      .filter(s => this.draftSpecIds().includes(s.id))
-      .map(s => ({ id: s.id, label: s.name })),
+    this.specs
+      .specialities()
+      .filter((s) => this.draftSpecIds().includes(s.id))
+      .map((s) => ({ id: s.id, label: s.name })),
   );
   protected readonly availableSpecs = computed<ChipOption[]>(() =>
-    this.specs.specialities()
-      .filter(s => !this.draftSpecIds().includes(s.id))
-      .map(s => ({ id: s.id, label: s.name })),
+    this.specs
+      .specialities()
+      .filter((s) => !this.draftSpecIds().includes(s.id))
+      .map((s) => ({ id: s.id, label: s.name })),
   );
 
   protected readonly assignedLocs = computed<ChipOption[]>(() =>
-    this.locs.locations()
-      .filter(l => this.draftLocIds().includes(l.id))
-      .map(l => ({ id: l.id, label: l.name })),
+    this.locs
+      .locations()
+      .filter((l) => this.draftLocIds().includes(l.id))
+      .map((l) => ({ id: l.id, label: l.name })),
   );
   protected readonly availableLocs = computed<ChipOption[]>(() =>
-    this.locs.locations()
-      .filter(l => !this.draftLocIds().includes(l.id))
-      .map(l => ({ id: l.id, label: l.name })),
+    this.locs
+      .locations()
+      .filter((l) => !this.draftLocIds().includes(l.id))
+      .map((l) => ({ id: l.id, label: l.name })),
   );
 
   constructor() {
@@ -104,7 +129,7 @@ export class UserEditModalComponent {
       return;
     }
     this.loading.set(true);
-    this.users.update(u.id, this.dataForm.getRawValue()).subscribe(saved => {
+    this.users.update(u.id, this.dataForm.getRawValue()).subscribe((saved) => {
       this.loading.set(false);
       this.toast.show(`Datos de "${saved.firstName} ${saved.lastName}" actualizados`);
       this.updated.emit(saved);
@@ -115,7 +140,7 @@ export class UserEditModalComponent {
     const u = this.user();
     if (!u) return;
     this.loading.set(true);
-    this.users.update(u.id, { roleIds: this.draftRoleIds() }).subscribe(saved => {
+    this.users.update(u.id, { roleIds: this.draftRoleIds() }).subscribe((saved) => {
       this.loading.set(false);
       this.toast.show('Roles actualizados correctamente');
       this.updated.emit(saved);
@@ -126,7 +151,7 @@ export class UserEditModalComponent {
     const u = this.user();
     if (!u) return;
     this.loading.set(true);
-    this.users.update(u.id, { specialityIds: this.draftSpecIds() }).subscribe(saved => {
+    this.users.update(u.id, { specialityIds: this.draftSpecIds() }).subscribe((saved) => {
       this.loading.set(false);
       this.toast.show('Especialidades actualizadas correctamente');
       this.updated.emit(saved);
@@ -137,7 +162,7 @@ export class UserEditModalComponent {
     const u = this.user();
     if (!u) return;
     this.loading.set(true);
-    this.users.update(u.id, { locationIds: this.draftLocIds() }).subscribe(saved => {
+    this.users.update(u.id, { locationIds: this.draftLocIds() }).subscribe((saved) => {
       this.loading.set(false);
       this.toast.show('Ubicaciones actualizadas correctamente');
       this.updated.emit(saved);
@@ -174,12 +199,24 @@ export class UserEditModalComponent {
     this.close.emit();
   }
 
-  onAddRole(roleId: number): void { this.draftRoleIds.update(ids => [...ids, roleId]); }
-  onRemoveRole(roleId: number): void { this.draftRoleIds.update(ids => ids.filter(id => id !== roleId)); }
+  onAddRole(roleId: number): void {
+    this.draftRoleIds.update((ids) => [...ids, roleId]);
+  }
+  onRemoveRole(roleId: number): void {
+    this.draftRoleIds.update((ids) => ids.filter((id) => id !== roleId));
+  }
 
-  onAddSpec(specId: number): void { this.draftSpecIds.update(ids => [...ids, specId]); }
-  onRemoveSpec(specId: number): void { this.draftSpecIds.update(ids => ids.filter(id => id !== specId)); }
+  onAddSpec(specId: number): void {
+    this.draftSpecIds.update((ids) => [...ids, specId]);
+  }
+  onRemoveSpec(specId: number): void {
+    this.draftSpecIds.update((ids) => ids.filter((id) => id !== specId));
+  }
 
-  onAddLoc(locId: number): void { this.draftLocIds.update(ids => [...ids, locId]); }
-  onRemoveLoc(locId: number): void { this.draftLocIds.update(ids => ids.filter(id => id !== locId)); }
+  onAddLoc(locId: number): void {
+    this.draftLocIds.update((ids) => [...ids, locId]);
+  }
+  onRemoveLoc(locId: number): void {
+    this.draftLocIds.update((ids) => ids.filter((id) => id !== locId));
+  }
 }

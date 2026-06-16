@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UserService } from '../../../core/services/user.service';
@@ -10,12 +17,19 @@ import { User } from '../../../core/models/user.model';
 import { UserCreateModalComponent } from './user-create-modal.component';
 import { UserEditModalComponent } from './user-edit-modal.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
+import { HasPermissionDirective } from '../../../core/auth/has-permission.directive';
 
 const PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-users-list',
-  imports: [ReactiveFormsModule, UserCreateModalComponent, UserEditModalComponent, ConfirmDeleteComponent],
+  imports: [
+    ReactiveFormsModule,
+    UserCreateModalComponent,
+    UserEditModalComponent,
+    ConfirmDeleteComponent,
+    HasPermissionDirective,
+  ],
   templateUrl: './users-list.component.html',
   styleUrls: ['./users-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,7 +53,7 @@ export class UsersListComponent implements OnInit {
   protected readonly filtered = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
     if (!term) return this.users();
-    return this.users().filter(u => {
+    return this.users().filter((u) => {
       const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
       return fullName.includes(term) || u.email.toLowerCase().includes(term);
     });
@@ -65,17 +79,21 @@ export class UsersListComponent implements OnInit {
     this.locs.list().subscribe();
   }
 
-  prev(): void { if (this.page() > 1) this.page.update(p => p - 1); }
-  next(): void { if (this.page() < this.totalPages()) this.page.update(p => p + 1); }
+  prev(): void {
+    if (this.page() > 1) this.page.update((p) => p - 1);
+  }
+  next(): void {
+    if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
+  }
 
   rolesOf(u: User) {
-    return this.roles.roles().filter(r => u.roleIds.includes(r.id));
+    return this.roles.roles().filter((r) => u.roleIds.includes(r.id));
   }
   specsOf(u: User) {
-    return this.specs.specialities().filter(s => u.specialityIds.includes(s.id));
+    return this.specs.specialities().filter((s) => u.specialityIds.includes(s.id));
   }
   locsOf(u: User) {
-    return this.locs.locations().filter(l => u.locationIds.includes(l.id));
+    return this.locs.locations().filter((l) => u.locationIds.includes(l.id));
   }
 
   initials(u: User): string {
@@ -102,6 +120,11 @@ export class UsersListComponent implements OnInit {
   onCreated(user: User): void {
     this.openCreate.set(false);
     this.toast.show(`Usuario "${user.firstName} ${user.lastName}" creado correctamente`);
+  }
+
+  // Pide el detalle del usuario a la API antes de abrir el modal de edición.
+  edit(u: User): void {
+    this.userService.get(u.id).subscribe(detail => this.editing.set(detail));
   }
 
   onUpdated(_user: User): void {

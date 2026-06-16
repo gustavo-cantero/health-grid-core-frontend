@@ -2,6 +2,7 @@
   [open]="open()"
   title="Editar mi perfil"
   [maxWidth]="420"
+  [closeOnBackdrop]="false"
   (close)="requestClose()"
 >
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>

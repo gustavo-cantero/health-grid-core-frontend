@@ -3,7 +3,7 @@
 <p class="page-subtitle">Definí los roles del sistema y asignales permisos.</p>
 
 <div style="text-align:right;margin-bottom:16px">
-  <button type="button" class="btn-main" (click)="openCreate.set(true)">+ Nuevo rol</button>
+  <button type="button" class="btn-main" *hgHasPermission="'roles:manage'" (click)="openCreate.set(true)">+ Nuevo rol</button>
 </div>
 
 <div class="tabs" role="tablist" aria-label="Vistas de roles">
@@ -41,8 +41,8 @@
               <td>{{ userCount(r.id) }}</td>
               <td>
                 <div class="actions">
-                  <button type="button" class="btn-outline" (click)="editing.set(r)">Editar</button>
-                  <button type="button" class="btn-danger" (click)="deleting.set(r)">Eliminar</button>
+                  <button type="button" class="btn-outline" *hgHasPermission="'roles:manage'" (click)="edit(r)">Editar</button>
+                  <button type="button" class="btn-danger" *hgHasPermission="'roles:manage'" (click)="deleting.set(r)">Eliminar</button>
                 </div>
               </td>
             </tr>
@@ -78,6 +78,7 @@
                 type="button"
                 class="check"
                 [class.on]="isChecked(r.id, p.id)"
+                [disabled]="!canManageRolePerms()"
                 [attr.aria-label]="(isChecked(r.id, p.id) ? 'Quitar ' : 'Asignar ') + p.name + ' a ' + r.name"
                 [attr.aria-pressed]="isChecked(r.id, p.id)"
                 (click)="toggleCheck(r.id, p.id)"
@@ -88,7 +89,7 @@
       }
     </div>
     <div style="margin-top:16px;text-align:right">
-      <button type="button" class="btn-main" (click)="saveMatrix()">Guardar cambios</button>
+      <button type="button" class="btn-main" *hgHasPermission="'roles:permissions:manage'" (click)="saveMatrix()">Guardar cambios</button>
     </div>
   }
 }

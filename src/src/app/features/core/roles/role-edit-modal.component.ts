@@ -1,8 +1,20 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { ConfirmUnsavedComponent } from '../../../shared/ui/confirm-unsaved/confirm-unsaved.component';
-import { ChipsInputComponent, ChipOption } from '../../../shared/ui/chips-input/chips-input.component';
+import {
+  ChipsInputComponent,
+  ChipOption,
+} from '../../../shared/ui/chips-input/chips-input.component';
 import { RoleService } from '../../../core/services/role.service';
 import { PermissionService } from '../../../core/services/permission.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -40,15 +52,17 @@ export class RoleEditModalComponent {
   });
 
   protected readonly assignedPerms = computed<ChipOption[]>(() =>
-    this.perms.permissions()
-      .filter(p => this.draftPermIds().includes(p.id))
-      .map(p => ({ id: p.id, label: p.name })),
+    this.perms
+      .permissions()
+      .filter((p) => this.draftPermIds().includes(p.id))
+      .map((p) => ({ id: p.id, label: p.name })),
   );
 
   protected readonly availablePerms = computed<ChipOption[]>(() =>
-    this.perms.permissions()
-      .filter(p => !this.draftPermIds().includes(p.id))
-      .map(p => ({ id: p.id, label: p.name })),
+    this.perms
+      .permissions()
+      .filter((p) => !this.draftPermIds().includes(p.id))
+      .map((p) => ({ id: p.id, label: p.name })),
   );
 
   constructor() {
@@ -68,11 +82,13 @@ export class RoleEditModalComponent {
       return;
     }
     this.loading.set(true);
-    this.roles.update(r.id, { name: this.form.getRawValue().name, permissionIds: this.draftPermIds() }).subscribe(saved => {
-      this.loading.set(false);
-      this.toast.show(`Rol "${saved.name}" actualizado correctamente`);
-      this.updated.emit(saved);
-    });
+    this.roles
+      .update(r.id, { name: this.form.getRawValue().name, permissionIds: this.draftPermIds() })
+      .subscribe((saved) => {
+        this.loading.set(false);
+        this.toast.show(`Rol "${saved.name}" actualizado correctamente`);
+        this.updated.emit(saved);
+      });
   }
 
   protected readonly isDirty = computed(() => {
@@ -80,7 +96,11 @@ export class RoleEditModalComponent {
     if (!r) return false;
     const draftIds = [...this.draftPermIds()].sort((a, b) => a - b);
     const origIds = [...r.permissionIds].sort((a, b) => a - b);
-    return this.form.dirty || draftIds.length !== origIds.length || draftIds.some((v, i) => v !== origIds[i]);
+    return (
+      this.form.dirty ||
+      draftIds.length !== origIds.length ||
+      draftIds.some((v, i) => v !== origIds[i])
+    );
   });
 
   requestClose(): void {
@@ -96,6 +116,10 @@ export class RoleEditModalComponent {
     this.close.emit();
   }
 
-  onAddPerm(permId: number): void { this.draftPermIds.update(ids => [...ids, permId]); }
-  onRemovePerm(permId: number): void { this.draftPermIds.update(ids => ids.filter(id => id !== permId)); }
+  onAddPerm(permId: number): void {
+    this.draftPermIds.update((ids) => [...ids, permId]);
+  }
+  onRemovePerm(permId: number): void {
+    this.draftPermIds.update((ids) => ids.filter((id) => id !== permId));
+  }
 }

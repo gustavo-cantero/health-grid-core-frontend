@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -49,8 +55,8 @@ export class RegisterComponent {
       next: () => {
         this.loading.set(false);
         this.success.set(true);
-        // Register already returns a token (auto-login) → go straight to the app.
-        this.router.navigateByUrl('/core/users');
+        // El registro ya devuelve un token (auto-login) → vamos al primer módulo permitido.
+        this.router.navigateByUrl(this.auth.firstAllowedModuleRoute() ?? '/login');
       },
       error: (err: Error) => {
         this.loading.set(false);

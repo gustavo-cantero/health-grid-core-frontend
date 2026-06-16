@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 
 const PAGE_SIZE = 10;
 import { LocationService } from '../../../core/services/location.service';
@@ -6,10 +13,11 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { Location } from '../../../core/models/location.model';
 import { LocationFormModalComponent } from './location-form-modal.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
+import { HasPermissionDirective } from '../../../core/auth/has-permission.directive';
 
 @Component({
   selector: 'app-locations-list',
-  imports: [LocationFormModalComponent, ConfirmDeleteComponent],
+  imports: [LocationFormModalComponent, ConfirmDeleteComponent, HasPermissionDirective],
   templateUrl: './locations-list.component.html',
   styleUrls: ['./locations-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,12 +49,21 @@ export class LocationsListComponent implements OnInit {
     this.locService.list().subscribe();
   }
 
-  prev(): void { if (this.page() > 1) this.page.update(p => p - 1); }
-  next(): void { if (this.page() < this.totalPages()) this.page.update(p => p + 1); }
+  prev(): void {
+    if (this.page() > 1) this.page.update((p) => p - 1);
+  }
+  next(): void {
+    if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
+  }
 
   onCreated(l: Location): void {
     this.openCreate.set(false);
     this.toast.show(`Ubicación "${l.name}" creada correctamente`);
+  }
+
+  // Pide el detalle de la ubicación a la API antes de abrir el modal de edición.
+  edit(l: Location): void {
+    this.locService.get(l.id).subscribe(detail => this.editing.set(detail));
   }
 
   onUpdated(l: Location): void {

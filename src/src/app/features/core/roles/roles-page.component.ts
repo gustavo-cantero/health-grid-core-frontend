@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { RoleService } from '../../../core/services/role.service';
 import { PermissionService } from '../../../core/services/permission.service';
 import { UserService } from '../../../core/services/user.service';
@@ -7,6 +14,9 @@ import { Role } from '../../../core/models/role.model';
 import { RoleCreateModalComponent } from './role-create-modal.component';
 import { RoleEditModalComponent } from './role-edit-modal.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
+import { HasPermissionDirective } from '../../../core/auth/has-permission.directive';
+import { AuthService } from '../../../core/services/auth.service';
+import { PERMISSIONS } from '../../../core/auth/permissions';
 
 const PAGE_SIZE = 10;
 
@@ -14,7 +24,12 @@ type RolesTab = 'list' | 'matrix';
 
 @Component({
   selector: 'app-roles-page',
-  imports: [RoleCreateModalComponent, RoleEditModalComponent, ConfirmDeleteComponent],
+  imports: [
+    RoleCreateModalComponent,
+    RoleEditModalComponent,
+    ConfirmDeleteComponent,
+    HasPermissionDirective,
+  ],
   templateUrl: './roles-page.component.html',
   styleUrls: ['./roles-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,9 +39,15 @@ export class RolesPageComponent implements OnInit {
   private readonly permService = inject(PermissionService);
   private readonly userService = inject(UserService);
   private readonly toast = inject(ToastService);
+  private readonly auth = inject(AuthService);
 
   protected readonly roles = this.roleService.roles;
   protected readonly permissions = this.permService.permissions;
+
+  // La matriz de permisos solo es editable con roles:permissions:manage.
+  protected readonly canManageRolePerms = computed(() =>
+    this.auth.has(PERMISSIONS.roles.permissionsManage),
+  );
 
   protected readonly tab = signal<RolesTab>('list');
   protected readonly openCreate = signal<boolean>(false);
@@ -66,8 +87,12 @@ export class RolesPageComponent implements OnInit {
     this.refreshDraft();
   }
 
-  prev(): void { if (this.page() > 1) this.page.update(p => p - 1); }
-  next(): void { if (this.page() < this.totalPages()) this.page.update(p => p + 1); }
+  prev(): void {
+    if (this.page() > 1) this.page.update((p) => p - 1);
+  }
+  next(): void {
+    if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
+  }
 
   userCount(roleId: number): number {
     return this.userCountMap().get(roleId) ?? 0;
@@ -75,7 +100,7 @@ export class RolesPageComponent implements OnInit {
 
   firstPerms(role: Role, n: number) {
     const ids = role.permissionIds.slice(0, n);
-    return this.permService.permissions().filter(p => ids.includes(p.id));
+    return this.permService.permissions().filter((p) => ids.includes(p.id));
   }
 
   isChecked(roleId: number, permId: number): boolean {
@@ -83,10 +108,11 @@ export class RolesPageComponent implements OnInit {
   }
 
   toggleCheck(roleId: number, permId: number): void {
-    this.matrixDraft.update(curr => {
+    this.matrixDraft.update((curr) => {
       const next = { ...curr };
       const set = new Set(next[roleId] ?? []);
-      if (set.has(permId)) set.delete(permId); else set.add(permId);
+      if (set.has(permId)) set.delete(permId);
+      else set.add(permId);
       next[roleId] = set;
       return next;
     });
@@ -106,6 +132,11 @@ export class RolesPageComponent implements OnInit {
     this.openCreate.set(false);
     this.toast.show(`Rol "${role.name}" creado correctamente`);
     this.refreshDraft();
+  }
+
+  // Pide el detalle del rol a la API antes de abrir el modal de edición.
+  edit(r: Role): void {
+    this.roleService.get(r.id).subscribe(detail => this.editing.set(detail));
   }
 
   onUpdated(_role: Role): void {

@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 
 const PAGE_SIZE = 10;
 import { SpecialityService } from '../../../core/services/speciality.service';
@@ -7,10 +14,11 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { Speciality } from '../../../core/models/speciality.model';
 import { SpecialityFormModalComponent } from './speciality-form-modal.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
+import { HasPermissionDirective } from '../../../core/auth/has-permission.directive';
 
 @Component({
   selector: 'app-specialities-list',
-  imports: [SpecialityFormModalComponent, ConfirmDeleteComponent],
+  imports: [SpecialityFormModalComponent, ConfirmDeleteComponent, HasPermissionDirective],
   templateUrl: './specialities-list.component.html',
   styleUrls: ['./specialities-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,8 +62,12 @@ export class SpecialitiesListComponent implements OnInit {
     this.userService.list().subscribe();
   }
 
-  prev(): void { if (this.page() > 1) this.page.update(p => p - 1); }
-  next(): void { if (this.page() < this.totalPages()) this.page.update(p => p + 1); }
+  prev(): void {
+    if (this.page() > 1) this.page.update((p) => p - 1);
+  }
+  next(): void {
+    if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
+  }
 
   doctorCount(specId: number): number {
     return this.countMap().get(specId) ?? 0;
@@ -64,6 +76,11 @@ export class SpecialitiesListComponent implements OnInit {
   onCreated(s: Speciality): void {
     this.openCreate.set(false);
     this.toast.show(`Especialidad "${s.name}" creada correctamente`);
+  }
+
+  // Pide el detalle de la especialidad a la API antes de abrir el modal de edición.
+  edit(s: Speciality): void {
+    this.specService.get(s.id).subscribe(detail => this.editing.set(detail));
   }
 
   onUpdated(s: Speciality): void {

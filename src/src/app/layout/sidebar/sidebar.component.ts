@@ -1,12 +1,27 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { CORE_MODULES, PERMISSIONS } from '../../core/auth/permissions';
 import { ProfileEditModalComponent } from '../profile-edit-modal/profile-edit-modal.component';
 import { ChangePasswordModalComponent } from '../change-password-modal/change-password-modal.component';
 
 type ModuleIcon =
-  | 'file-text' | 'calendar' | 'package' | 'activity'
-  | 'image' | 'home' | 'credit-card' | 'user' | 'bar-chart';
+  | 'file-text'
+  | 'calendar'
+  | 'package'
+  | 'activity'
+  | 'image'
+  | 'home'
+  | 'credit-card'
+  | 'user'
+  | 'bar-chart';
 
 interface ModuleEntry {
   label: string;
@@ -16,6 +31,7 @@ interface ModuleEntry {
 interface CoreSubItem {
   label: string;
   path: string;
+  read: string;
 }
 
 @Component({
@@ -43,32 +59,38 @@ export class SidebarComponent {
   protected readonly initials = computed(() => this.auth.currentUser()?.initials ?? 'GA');
 
   protected readonly modules: readonly ModuleEntry[] = [
-    { label: 'Historia Clínica',         icon: 'file-text'   },
-    { label: 'Turnos y Agendas',         icon: 'calendar'    },
-    { label: 'Farmacia e Insumos',       icon: 'package'     },
-    { label: 'Laboratorio',              icon: 'activity'    },
-    { label: 'Diagnóstico por Imágenes', icon: 'image'       },
-    { label: 'Internación y Camas',      icon: 'home'        },
-    { label: 'Facturación',              icon: 'credit-card' },
-    { label: 'Portal del Paciente',      icon: 'user'        },
-    { label: 'Monitoreo',                icon: 'bar-chart'   },
+    { label: 'Historia Clínica', icon: 'file-text' },
+    { label: 'Turnos y Agendas', icon: 'calendar' },
+    { label: 'Farmacia e Insumos', icon: 'package' },
+    { label: 'Laboratorio', icon: 'activity' },
+    { label: 'Diagnóstico por Imágenes', icon: 'image' },
+    { label: 'Internación y Camas', icon: 'home' },
+    { label: 'Facturación', icon: 'credit-card' },
+    { label: 'Portal del Paciente', icon: 'user' },
+    { label: 'Monitoreo', icon: 'bar-chart' },
   ];
 
-  protected readonly coreItems: readonly CoreSubItem[] = [
-    { label: 'Usuarios',       path: '/core/users' },
-    { label: 'Roles',          path: '/core/roles' },
-    { label: 'Permisos',       path: '/core/permissions' },
-    { label: 'Especialidades', path: '/core/specialities' },
-    { label: 'Ubicaciones',    path: '/core/locations' },
-  ];
+  // Solo se muestran los módulos para los que el usuario tiene permiso de lectura.
+  protected readonly coreItems = computed<CoreSubItem[]>(() =>
+    CORE_MODULES.filter((m) => this.auth.has(m.read)).map((m) => ({
+      label: m.label,
+      path: m.path,
+      read: m.read,
+    })),
+  );
+
+  // "Cambiar contraseña" solo si el usuario puede cambiar la propia.
+  protected readonly canChangePassword = computed(() =>
+    this.auth.has(PERMISSIONS.users.passwordSelf),
+  );
 
   toggleCore(): void {
-    this.coreOpen.update(v => !v);
+    this.coreOpen.update((v) => !v);
   }
 
   toggleUserMenu(event: MouseEvent): void {
     event.stopPropagation();
-    this.userMenuOpen.update(v => !v);
+    this.userMenuOpen.update((v) => !v);
   }
 
   onDocClick(event: MouseEvent): void {

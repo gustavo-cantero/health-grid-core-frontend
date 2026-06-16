@@ -33,6 +33,15 @@ export class PermissionService {
     return this.store().find(p => p.id === id);
   }
 
+  // Pide el detalle del permiso a la API y refresca la copia cacheada.
+  get(id: number): Observable<Permission> {
+    return this.http.get<ApiPermission>(`${this.baseUrl}/${id}`).pipe(
+      map(fromApi),
+      tap(item => this.store.update(list => list.map(p => (p.id === id ? item : p)))),
+      catchError(err => throwError(() => toError(err))),
+    );
+  }
+
   create(payload: CreatePermissionPayload): Observable<Permission> {
     return this.http.post<ApiPermission>(this.baseUrl, { name: payload.name }).pipe(
       map(fromApi),

@@ -35,7 +35,8 @@ export class LoginComponent {
     this.auth.login(email, password).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigateByUrl('/core/users');
+        // Vamos al primer módulo que el usuario tenga permiso de ver.
+        this.router.navigateByUrl(this.auth.firstAllowedModuleRoute() ?? '/login');
       },
       error: (err: Error) => {
         this.loading.set(false);

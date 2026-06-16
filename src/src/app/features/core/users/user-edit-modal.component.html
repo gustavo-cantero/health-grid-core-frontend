@@ -2,14 +2,15 @@
   [open]="open()"
   [title]="title()"
   [maxWidth]="560"
+  [closeOnBackdrop]="false"
   (close)="requestClose()"
 >
   @if (user(); as u) {
     <div class="tabs" style="margin-bottom:16px" role="tablist" aria-label="Pestañas de edición">
       <button type="button" class="tab" role="tab" [attr.aria-selected]="tab() === 'datos'" [class.active]="tab() === 'datos'" (click)="tab.set('datos')">Datos</button>
-      <button type="button" class="tab" role="tab" [attr.aria-selected]="tab() === 'roles'" [class.active]="tab() === 'roles'" (click)="tab.set('roles')">Roles</button>
-      <button type="button" class="tab" role="tab" [attr.aria-selected]="tab() === 'specs'" [class.active]="tab() === 'specs'" (click)="tab.set('specs')">Especialidades</button>
-      <button type="button" class="tab" role="tab" [attr.aria-selected]="tab() === 'locs'" [class.active]="tab() === 'locs'" (click)="tab.set('locs')">Ubicaciones</button>
+      <button type="button" class="tab" role="tab" *hgHasPermission="'users:roles:manage'" [attr.aria-selected]="tab() === 'roles'" [class.active]="tab() === 'roles'" (click)="tab.set('roles')">Roles</button>
+      <button type="button" class="tab" role="tab" *hgHasPermission="'users:specialities:manage'" [attr.aria-selected]="tab() === 'specs'" [class.active]="tab() === 'specs'" (click)="tab.set('specs')">Especialidades</button>
+      <button type="button" class="tab" role="tab" *hgHasPermission="'users:locations:manage'" [attr.aria-selected]="tab() === 'locs'" [class.active]="tab() === 'locs'" (click)="tab.set('locs')">Ubicaciones</button>
     </div>
 
     @switch (tab()) {
@@ -49,7 +50,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn-cancel" (click)="requestClose()">Cancelar</button>
-            <button type="submit" class="btn-main" [disabled]="loading()">Guardar cambios</button>
+            <button type="submit" class="btn-main" *hgHasPermission="'users:write'" [disabled]="loading()">Guardar cambios</button>
           </div>
         </form>
       }

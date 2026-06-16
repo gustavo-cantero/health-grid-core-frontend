@@ -3,7 +3,7 @@
 <p class="page-subtitle">Gestioná las sedes y consultorios de la red de salud.</p>
 
 <div style="text-align:right;margin-bottom:16px">
-  <button type="button" class="btn-main" (click)="openCreate.set(true)">+ Nueva ubicación</button>
+  <button type="button" class="btn-main" *hgHasPermission="'locations:manage'" (click)="openCreate.set(true)">+ Nueva ubicación</button>
 </div>
 
 <div class="table-wrap">
@@ -28,8 +28,8 @@
           <td>{{ l.country }}</td>
           <td>
             <div class="actions">
-              <button type="button" class="btn-outline" (click)="editing.set(l)">Editar</button>
-              <button type="button" class="btn-danger" (click)="deleting.set(l)">Eliminar</button>
+              <button type="button" class="btn-outline" *hgHasPermission="'locations:manage'" (click)="edit(l)">Editar</button>
+              <button type="button" class="btn-danger" *hgHasPermission="'locations:manage'" (click)="deleting.set(l)">Eliminar</button>
             </div>
           </td>
         </tr>

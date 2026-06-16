@@ -7,7 +7,7 @@
     <label for="users-search" class="visually-hidden">Buscar usuarios</label>
     <input id="users-search" type="search" [formControl]="searchControl" placeholder="Buscar por nombre o email..." />
   </div>
-  <button type="button" class="btn-main" (click)="openCreate.set(true)">+ Nuevo usuario</button>
+  <button type="button" class="btn-main" *hgHasPermission="'users:create'" (click)="openCreate.set(true)">+ Nuevo usuario</button>
 </div>
 
 <div class="table-wrap">
@@ -54,8 +54,8 @@
           <td class="cell-id">{{ formatDate(u.createdAt) }}</td>
           <td>
             <div class="actions">
-              <button type="button" class="btn-outline" (click)="editing.set(u)">Editar</button>
-              <button type="button" class="btn-danger" (click)="deleting.set(u)">Eliminar</button>
+              <button type="button" class="btn-outline" *hgHasPermission="['users:write', 'users:roles:manage', 'users:specialities:manage', 'users:locations:manage']" (click)="edit(u)">Editar</button>
+              <button type="button" class="btn-danger" *hgHasPermission="'users:delete'" (click)="deleting.set(u)">Eliminar</button>
             </div>
           </td>
         </tr>

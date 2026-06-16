@@ -2,6 +2,7 @@
   [open]="open()"
   [title]="title()"
   [maxWidth]="420"
+  [closeOnBackdrop]="!existing()"
   (close)="requestClose()"
 >
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>

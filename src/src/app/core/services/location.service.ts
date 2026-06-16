@@ -33,6 +33,15 @@ export class LocationService {
     return this.store().find(l => l.id === id);
   }
 
+  // Pide el detalle de la ubicación a la API y refresca la copia cacheada.
+  get(id: number): Observable<Location> {
+    return this.http.get<ApiLocation>(`${this.baseUrl}/${id}`).pipe(
+      map(fromApi),
+      tap(item => this.store.update(list => list.map(l => (l.id === id ? item : l)))),
+      catchError(err => throwError(() => toError(err))),
+    );
+  }
+
   create(payload: CreateLocationPayload): Observable<Location> {
     return this.http.post<ApiLocation>(this.baseUrl, payload).pipe(
       map(fromApi),

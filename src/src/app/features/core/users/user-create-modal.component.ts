@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { ConfirmUnsavedComponent } from '../../../shared/ui/confirm-unsaved/confirm-unsaved.component';
@@ -51,7 +59,7 @@ export class UserCreateModalComponent {
       return;
     }
     this.loading.set(true);
-    this.users.create(this.form.getRawValue()).subscribe(user => {
+    this.users.create(this.form.getRawValue()).subscribe((user) => {
       this.loading.set(false);
       this.form.reset({ firstName: '', lastName: '', email: '', password: '' });
       this.created.emit(user);

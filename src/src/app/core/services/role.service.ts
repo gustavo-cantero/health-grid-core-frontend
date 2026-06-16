@@ -46,6 +46,15 @@ export class RoleService {
     return this.store().find(r => r.id === id);
   }
 
+  // Pide el detalle del rol a la API y refresca la copia cacheada.
+  get(id: number): Observable<Role> {
+    return this.http.get<ApiRole>(`${this.baseUrl}/${id}`).pipe(
+      map(fromApi),
+      tap(role => this.store.update(list => list.map(r => (r.id === id ? role : r)))),
+      catchError(err => throwError(() => toError(err))),
+    );
+  }
+
   create(payload: CreateRolePayload): Observable<Role> {
     return this.http.post<ApiRole>(this.baseUrl, { name: payload.name }).pipe(
       map(fromApi),

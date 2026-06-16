@@ -29,6 +29,15 @@ export class UserService {
     return this.store().find(u => u.id === id);
   }
 
+  // Pide el detalle del usuario a la API y refresca la copia cacheada.
+  get(id: number): Observable<User> {
+    return this.http.get<ApiUser>(`${this.baseUrl}/${id}`).pipe(
+      map(fromApi),
+      tap(user => this.store.update(list => list.map(u => (u.id === id ? user : u)))),
+      catchError(err => throwError(() => toError(err))),
+    );
+  }
+
   create(payload: CreateUserPayload): Observable<User> {
     const body = {
       first_name: payload.firstName,

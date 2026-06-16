@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { ConfirmUnsavedComponent } from '../../../shared/ui/confirm-unsaved/confirm-unsaved.component';
@@ -24,7 +33,7 @@ export class PermissionFormModalComponent {
   protected readonly loading = signal<boolean>(false);
   protected readonly confirmingCancel = signal<boolean>(false);
 
-  protected readonly title = computed(() => this.existing() ? 'Editar permiso' : 'Nuevo permiso');
+  protected readonly title = computed(() => (this.existing() ? 'Editar permiso' : 'Nuevo permiso'));
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -63,7 +72,7 @@ export class PermissionFormModalComponent {
     this.loading.set(true);
     const existing = this.existing();
     const obs$ = existing ? this.perms.update(existing.id, payload) : this.perms.create(payload);
-    obs$.subscribe(p => {
+    obs$.subscribe((p) => {
       this.loading.set(false);
       this.saved.emit(p);
     });

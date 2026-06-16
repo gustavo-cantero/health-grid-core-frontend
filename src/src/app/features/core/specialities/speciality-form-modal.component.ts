@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { ConfirmUnsavedComponent } from '../../../shared/ui/confirm-unsaved/confirm-unsaved.component';
@@ -24,7 +33,9 @@ export class SpecialityFormModalComponent {
   protected readonly loading = signal<boolean>(false);
   protected readonly confirmingCancel = signal<boolean>(false);
 
-  protected readonly title = computed(() => this.existing() ? 'Editar especialidad' : 'Nueva especialidad');
+  protected readonly title = computed(() =>
+    this.existing() ? 'Editar especialidad' : 'Nueva especialidad',
+  );
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -63,7 +74,7 @@ export class SpecialityFormModalComponent {
     this.loading.set(true);
     const existing = this.existing();
     const obs$ = existing ? this.specs.update(existing.id, payload) : this.specs.create(payload);
-    obs$.subscribe(s => {
+    obs$.subscribe((s) => {
       this.loading.set(false);
       this.saved.emit(s);
     });

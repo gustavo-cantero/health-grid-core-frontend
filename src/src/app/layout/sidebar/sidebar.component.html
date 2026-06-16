@@ -60,7 +60,7 @@
     </button>
 
     <div id="core-submenu" class="nav-submenu" [class.open]="coreOpen()">
-      @for (item of coreItems; track item.path) {
+      @for (item of coreItems(); track item.path) {
         <a
           class="nav-subitem"
           [routerLink]="item.path"
@@ -73,7 +73,9 @@
   <div class="sidebar-footer">
     <div class="user-dropdown" [class.open]="userMenuOpen()">
       <button type="button" (click)="onEditProfile()">Editar mis datos</button>
-      <button type="button" (click)="onChangePassword()">Cambiar contraseña</button>
+      @if (canChangePassword()) {
+        <button type="button" (click)="onChangePassword()">Cambiar contraseña</button>
+      }
       <button type="button" (click)="onLogout()">Cerrar sesión</button>
     </div>
     <button

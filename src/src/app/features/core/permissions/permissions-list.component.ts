@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 
 const PAGE_SIZE = 10;
 import { PermissionService } from '../../../core/services/permission.service';
@@ -7,10 +14,11 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { Permission } from '../../../core/models/permission.model';
 import { PermissionFormModalComponent } from './permission-form-modal.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
+import { HasPermissionDirective } from '../../../core/auth/has-permission.directive';
 
 @Component({
   selector: 'app-permissions-list',
-  imports: [PermissionFormModalComponent, ConfirmDeleteComponent],
+  imports: [PermissionFormModalComponent, ConfirmDeleteComponent, HasPermissionDirective],
   templateUrl: './permissions-list.component.html',
   styleUrls: ['./permissions-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,8 +64,12 @@ export class PermissionsListComponent implements OnInit {
     this.roleService.list().subscribe();
   }
 
-  prev(): void { if (this.page() > 1) this.page.update(p => p - 1); }
-  next(): void { if (this.page() < this.totalPages()) this.page.update(p => p + 1); }
+  prev(): void {
+    if (this.page() > 1) this.page.update((p) => p - 1);
+  }
+  next(): void {
+    if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
+  }
 
   rolesFor(permId: number): string {
     const list = this.rolesByPerm().get(permId);
@@ -67,6 +79,11 @@ export class PermissionsListComponent implements OnInit {
   onCreated(p: Permission): void {
     this.openCreate.set(false);
     this.toast.show(`Permiso "${p.name}" creado correctamente`);
+  }
+
+  // Pide el detalle del permiso a la API antes de abrir el modal de edición.
+  edit(p: Permission): void {
+    this.permService.get(p.id).subscribe(detail => this.editing.set(detail));
   }
 
   onUpdated(p: Permission): void {

@@ -24,6 +24,8 @@ export class ModalComponent {
   readonly title = input.required<string>();
   readonly open = input<boolean>(false);
   readonly maxWidth = input<number>(500);
+  // Permite desactivar el cierre al pulsar fuera del modal (clic en el fondo)
+  readonly closeOnBackdrop = input<boolean>(true);
   readonly close = output<void>();
 
   readonly maxWidthPx = computed(() => this.maxWidth());
@@ -40,6 +42,7 @@ export class ModalComponent {
   }
 
   onBackdropClick(event: MouseEvent): void {
+    if (!this.closeOnBackdrop()) return;
     if (event.target === event.currentTarget) this.close.emit();
   }
 
