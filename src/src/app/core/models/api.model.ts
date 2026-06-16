@@ -11,6 +11,7 @@ export interface ApiPermission {
   id: number;
   name: string;
   deleted_at?: string | null;
+  roles?: ApiRole[];
 }
 
 export interface ApiRole {
@@ -18,6 +19,7 @@ export interface ApiRole {
   name: string;
   deleted_at?: string | null;
   permissions?: ApiPermission[];
+  users?: ApiUser[];
 }
 
 export interface ApiSpeciality {

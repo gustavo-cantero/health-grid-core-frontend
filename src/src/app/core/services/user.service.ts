@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { CreateUserPayload, UpdateUserPayload, User } from '../models/user.model';
 import { ApiUser, PaginatedResponse } from '../models/api.model';
 import { toError } from '../utils/api-error';
+import { colorForId } from './role.service';
 
 const PAGE_SIZE = 1000;
 
@@ -19,22 +20,22 @@ export class UserService {
   list(): Observable<User[]> {
     const params = new HttpParams().set('page', 1).set('pageSize', PAGE_SIZE);
     return this.http.get<PaginatedResponse<ApiUser>>(this.baseUrl, { params }).pipe(
-      map(res => res.data.map(fromApi)),
-      tap(users => this.store.set(users)),
-      catchError(err => throwError(() => toError(err))),
+      map((res) => res.data.map(fromApi)),
+      tap((users) => this.store.set(users)),
+      catchError((err) => throwError(() => toError(err))),
     );
   }
 
   getById(id: number): User | undefined {
-    return this.store().find(u => u.id === id);
+    return this.store().find((u) => u.id === id);
   }
 
   // Pide el detalle del usuario a la API y refresca la copia cacheada.
   get(id: number): Observable<User> {
     return this.http.get<ApiUser>(`${this.baseUrl}/${id}`).pipe(
       map(fromApi),
-      tap(user => this.store.update(list => list.map(u => (u.id === id ? user : u)))),
-      catchError(err => throwError(() => toError(err))),
+      tap((user) => this.store.update((list) => list.map((u) => (u.id === id ? user : u)))),
+      catchError((err) => throwError(() => toError(err))),
     );
   }
 
@@ -47,8 +48,8 @@ export class UserService {
     };
     return this.http.post<ApiUser>(this.baseUrl, body).pipe(
       map(fromApi),
-      tap(created => this.store.update(list => [...list, created])),
-      catchError(err => throwError(() => toError(err))),
+      tap((created) => this.store.update((list) => [...list, created])),
+      catchError((err) => throwError(() => toError(err))),
     );
   }
 
@@ -56,7 +57,11 @@ export class UserService {
     const current = this.getById(id);
     const calls: Observable<unknown>[] = [];
 
-    if (patch.firstName !== undefined || patch.lastName !== undefined || patch.email !== undefined) {
+    if (
+      patch.firstName !== undefined ||
+      patch.lastName !== undefined ||
+      patch.email !== undefined
+    ) {
       const body: Record<string, string> = {};
       if (patch.firstName !== undefined) body['first_name'] = patch.firstName;
       if (patch.lastName !== undefined) body['last_name'] = patch.lastName;
@@ -65,29 +70,50 @@ export class UserService {
     }
 
     if (patch.roleIds !== undefined) {
-      this.collectRelationCalls(calls, id, 'roles', 'role_id', current?.roleIds ?? [], patch.roleIds);
+      this.collectRelationCalls(
+        calls,
+        id,
+        'roles',
+        'role_id',
+        current?.roleIds ?? [],
+        patch.roleIds,
+      );
     }
     if (patch.specialityIds !== undefined) {
-      this.collectRelationCalls(calls, id, 'specialities', 'speciality_id', current?.specialityIds ?? [], patch.specialityIds);
+      this.collectRelationCalls(
+        calls,
+        id,
+        'specialities',
+        'speciality_id',
+        current?.specialityIds ?? [],
+        patch.specialityIds,
+      );
     }
     if (patch.locationIds !== undefined) {
-      this.collectRelationCalls(calls, id, 'locations', 'location_id', current?.locationIds ?? [], patch.locationIds);
+      this.collectRelationCalls(
+        calls,
+        id,
+        'locations',
+        'location_id',
+        current?.locationIds ?? [],
+        patch.locationIds,
+      );
     }
 
     const ops$: Observable<unknown> = calls.length ? forkJoin(calls) : of(null);
     return ops$.pipe(
       switchMap(() => this.http.get<ApiUser>(`${this.baseUrl}/${id}`)),
       map(fromApi),
-      tap(updated => this.store.update(list => list.map(u => (u.id === id ? updated : u)))),
-      catchError(err => throwError(() => toError(err))),
+      tap((updated) => this.store.update((list) => list.map((u) => (u.id === id ? updated : u)))),
+      catchError((err) => throwError(() => toError(err))),
     );
   }
 
   remove(id: number): Observable<void> {
     return this.http.delete(`${this.baseUrl}/${id}`).pipe(
       map(() => undefined),
-      tap(() => this.store.update(list => list.filter(u => u.id !== id))),
-      catchError(err => throwError(() => toError(err))),
+      tap(() => this.store.update((list) => list.filter((u) => u.id !== id))),
+      catchError((err) => throwError(() => toError(err))),
     );
   }
 
@@ -118,10 +144,10 @@ export class UserService {
     currentIds: number[],
     nextIds: number[],
   ): void {
-    for (const value of nextIds.filter(v => !currentIds.includes(v))) {
+    for (const value of nextIds.filter((v) => !currentIds.includes(v))) {
       calls.push(this.http.post(`${this.baseUrl}/${userId}/${resource}`, { [idKey]: value }));
     }
-    for (const value of currentIds.filter(v => !nextIds.includes(v))) {
+    for (const value of currentIds.filter((v) => !nextIds.includes(v))) {
       calls.push(this.http.delete(`${this.baseUrl}/${userId}/${resource}/${value}`));
     }
   }
@@ -136,20 +162,26 @@ export class UserService {
     const req$ = method === 'post' ? this.http.post(url, body ?? {}) : this.http.delete(url);
     return req$.pipe(
       map(() => undefined),
-      catchError(err => throwError(() => toError(err))),
+      catchError((err) => throwError(() => toError(err))),
     );
   }
 }
 
 function fromApi(apiUser: ApiUser): User {
+  const roles = apiUser.roles ?? [];
+  const specialities = apiUser.specialities ?? [];
+  const locations = apiUser.locations ?? [];
   return {
     id: apiUser.id,
     firstName: apiUser.first_name,
     lastName: apiUser.last_name,
     email: apiUser.email,
     createdAt: apiUser.created_at,
-    roleIds: (apiUser.roles ?? []).map(r => r.id),
-    specialityIds: (apiUser.specialities ?? []).map(s => s.id),
-    locationIds: (apiUser.locations ?? []).map(l => l.id),
+    roleIds: roles.map((r) => r.id),
+    specialityIds: specialities.map((s) => s.id),
+    locationIds: locations.map((l) => l.id),
+    roles: roles.map((r) => ({ id: r.id, name: r.name, color: colorForId(r.id) })),
+    specialities: specialities.map((s) => ({ id: s.id, name: s.name })),
+    locations: locations.map((l) => ({ id: l.id, name: l.name })),
   };
 }

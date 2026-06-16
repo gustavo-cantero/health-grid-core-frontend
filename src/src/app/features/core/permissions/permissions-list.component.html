@@ -21,7 +21,7 @@
         <tr>
           <td class="cell-id">#{{ p.id }}</td>
           <td><code>{{ p.name }}</code></td>
-          <td>{{ rolesFor(p.id) }}</td>
+          <td>{{ rolesFor(p) }}</td>
           <td>
             <div class="actions">
               <button type="button" class="btn-outline" *hgHasPermission="'permissions:manage'" (click)="edit(p)">Editar</button>

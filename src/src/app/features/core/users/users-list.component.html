@@ -34,22 +34,22 @@
           </td>
           <td class="cell-muted">{{ u.email }}</td>
           <td>
-            @for (r of rolesOf(u); track r.id) {
+            @for (r of u.roles; track r.id) {
               <span class="badge" [class]="'badge badge-' + r.color">{{ r.name }}</span>
             }
-            @if (rolesOf(u).length === 0) { <span class="cell-muted">—</span> }
+            @if (u.roles.length === 0) { <span class="cell-muted">—</span> }
           </td>
           <td>
-            @for (s of specsOf(u); track s.id) {
+            @for (s of u.specialities; track s.id) {
               <span class="badge badge-blue">{{ s.name }}</span>
             }
-            @if (specsOf(u).length === 0) { <span class="cell-muted">—</span> }
+            @if (u.specialities.length === 0) { <span class="cell-muted">—</span> }
           </td>
           <td>
-            @for (l of locsOf(u); track l.id) {
+            @for (l of u.locations; track l.id) {
               <span class="badge badge-gray">{{ l.name }}</span>
             }
-            @if (locsOf(u).length === 0) { <span class="cell-muted">—</span> }
+            @if (u.locations.length === 0) { <span class="cell-muted">—</span> }
           </td>
           <td class="cell-id">{{ formatDate(u.createdAt) }}</td>
           <td>

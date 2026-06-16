@@ -9,7 +9,6 @@ import {
 
 const PAGE_SIZE = 10;
 import { PermissionService } from '../../../core/services/permission.service';
-import { RoleService } from '../../../core/services/role.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { Permission } from '../../../core/models/permission.model';
 import { PermissionFormModalComponent } from './permission-form-modal.component';
@@ -25,7 +24,6 @@ import { HasPermissionDirective } from '../../../core/auth/has-permission.direct
 })
 export class PermissionsListComponent implements OnInit {
   private readonly permService = inject(PermissionService);
-  private readonly roleService = inject(RoleService);
   private readonly toast = inject(ToastService);
 
   protected readonly permissions = this.permService.permissions;
@@ -47,21 +45,9 @@ export class PermissionsListComponent implements OnInit {
     Array.from({ length: this.totalPages() }, (_, i) => i + 1),
   );
 
-  private readonly rolesByPerm = computed(() => {
-    const map = new Map<number, string[]>();
-    for (const r of this.roleService.roles()) {
-      for (const pid of r.permissionIds) {
-        const list = map.get(pid) ?? [];
-        list.push(r.name);
-        map.set(pid, list);
-      }
-    }
-    return map;
-  });
-
   ngOnInit(): void {
+    // /permissions ya trae los roles anidados, así que no hace falta /roles.
     this.permService.list().subscribe();
-    this.roleService.list().subscribe();
   }
 
   prev(): void {
@@ -71,9 +57,8 @@ export class PermissionsListComponent implements OnInit {
     if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
   }
 
-  rolesFor(permId: number): string {
-    const list = this.rolesByPerm().get(permId);
-    return list && list.length > 0 ? list.join(', ') : '—';
+  rolesFor(p: Permission): string {
+    return p.roleNames.length > 0 ? p.roleNames.join(', ') : '—';
   }
 
   onCreated(p: Permission): void {
@@ -83,7 +68,7 @@ export class PermissionsListComponent implements OnInit {
 
   // Pide el detalle del permiso a la API antes de abrir el modal de edición.
   edit(p: Permission): void {
-    this.permService.get(p.id).subscribe(detail => this.editing.set(detail));
+    this.permService.get(p.id).subscribe((detail) => this.editing.set(detail));
   }
 
   onUpdated(p: Permission): void {

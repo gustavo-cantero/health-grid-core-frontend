@@ -9,9 +9,6 @@ import {
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UserService } from '../../../core/services/user.service';
-import { RoleService } from '../../../core/services/role.service';
-import { SpecialityService } from '../../../core/services/speciality.service';
-import { LocationService } from '../../../core/services/location.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { User } from '../../../core/models/user.model';
 import { UserCreateModalComponent } from './user-create-modal.component';
@@ -36,9 +33,6 @@ const PAGE_SIZE = 10;
 })
 export class UsersListComponent implements OnInit {
   private readonly userService = inject(UserService);
-  private readonly roles = inject(RoleService);
-  private readonly specs = inject(SpecialityService);
-  private readonly locs = inject(LocationService);
   private readonly toast = inject(ToastService);
 
   protected readonly users = this.userService.users;
@@ -73,10 +67,9 @@ export class UsersListComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    // /users ya trae roles, especialidades y ubicaciones anidados, así que un
+    // único endpoint alcanza para pintar el listado.
     this.userService.list().subscribe();
-    this.roles.list().subscribe();
-    this.specs.list().subscribe();
-    this.locs.list().subscribe();
   }
 
   prev(): void {
@@ -84,16 +77,6 @@ export class UsersListComponent implements OnInit {
   }
   next(): void {
     if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
-  }
-
-  rolesOf(u: User) {
-    return this.roles.roles().filter((r) => u.roleIds.includes(r.id));
-  }
-  specsOf(u: User) {
-    return this.specs.specialities().filter((s) => u.specialityIds.includes(s.id));
-  }
-  locsOf(u: User) {
-    return this.locs.locations().filter((l) => u.locationIds.includes(l.id));
   }
 
   initials(u: User): string {
@@ -124,7 +107,7 @@ export class UsersListComponent implements OnInit {
 
   // Pide el detalle del usuario a la API antes de abrir el modal de edición.
   edit(u: User): void {
-    this.userService.get(u.id).subscribe(detail => this.editing.set(detail));
+    this.userService.get(u.id).subscribe((detail) => this.editing.set(detail));
   }
 
   onUpdated(_user: User): void {

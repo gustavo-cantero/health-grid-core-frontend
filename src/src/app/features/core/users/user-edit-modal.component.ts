@@ -109,6 +109,10 @@ export class UserEditModalComponent {
       .map((l) => ({ id: l.id, label: l.name })),
   );
 
+  // Catálogos completos que necesitan los selectores de chips. Se cargan la
+  // primera vez que se abre el modal (la lista de usuarios ya no los precarga).
+  private catalogsLoaded = false;
+
   constructor() {
     effect(() => {
       const u = this.user();
@@ -118,6 +122,15 @@ export class UserEditModalComponent {
         this.draftRoleIds.set([...u.roleIds]);
         this.draftSpecIds.set([...u.specialityIds]);
         this.draftLocIds.set([...u.locationIds]);
+      }
+    });
+
+    effect(() => {
+      if (this.open() && !this.catalogsLoaded) {
+        this.catalogsLoaded = true;
+        this.roles.list().subscribe();
+        this.specs.list().subscribe();
+        this.locs.list().subscribe();
       }
     });
   }

@@ -7,7 +7,6 @@ import {
   signal,
 } from '@angular/core';
 import { RoleService } from '../../../core/services/role.service';
-import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { Role } from '../../../core/models/role.model';
 import { RoleCreateModalComponent } from './role-create-modal.component';
@@ -31,7 +30,6 @@ const PAGE_SIZE = 10;
 })
 export class RolesPageComponent implements OnInit {
   private readonly roleService = inject(RoleService);
-  private readonly userService = inject(UserService);
   private readonly toast = inject(ToastService);
 
   protected readonly roles = this.roleService.roles;
@@ -54,19 +52,9 @@ export class RolesPageComponent implements OnInit {
     Array.from({ length: this.totalPages() }, (_, i) => i + 1),
   );
 
-  protected readonly userCountMap = computed(() => {
-    const map = new Map<number, number>();
-    for (const u of this.userService.users()) {
-      for (const rid of u.roleIds) {
-        map.set(rid, (map.get(rid) ?? 0) + 1);
-      }
-    }
-    return map;
-  });
-
   ngOnInit(): void {
+    // /roles ya trae los usuarios anidados, así que el conteo sale de ahí.
     this.roleService.list().subscribe();
-    this.userService.list().subscribe();
   }
 
   prev(): void {
@@ -76,10 +64,6 @@ export class RolesPageComponent implements OnInit {
     if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
   }
 
-  userCount(roleId: number): number {
-    return this.userCountMap().get(roleId) ?? 0;
-  }
-
   onCreated(role: Role): void {
     this.openCreate.set(false);
     this.toast.show(`Rol "${role.name}" creado correctamente`);
@@ -87,7 +71,7 @@ export class RolesPageComponent implements OnInit {
 
   // Pide el detalle del rol a la API antes de abrir el modal de edición.
   edit(r: Role): void {
-    this.roleService.get(r.id).subscribe(detail => this.editing.set(detail));
+    this.roleService.get(r.id).subscribe((detail) => this.editing.set(detail));
   }
 
   onUpdated(_role: Role): void {

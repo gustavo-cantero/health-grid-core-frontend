@@ -65,12 +65,23 @@ export class RoleEditModalComponent {
       .map((p) => ({ id: p.id, label: p.name })),
   );
 
+  // Catálogo de permisos para los chips. Se carga la primera vez que se abre
+  // el modal (la página de roles ya no lo precarga).
+  private permsLoaded = false;
+
   constructor() {
     effect(() => {
       const r = this.role();
       if (r && this.open()) {
         this.form.reset({ name: r.name });
         this.draftPermIds.set([...r.permissionIds]);
+      }
+    });
+
+    effect(() => {
+      if (this.open() && !this.permsLoaded) {
+        this.permsLoaded = true;
+        this.perms.list().subscribe();
       }
     });
   }
