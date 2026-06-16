@@ -431,32 +431,6 @@ tbody tr:hover td { background: #f7f9fa; }
 }
 .chip-remove:hover { color: #A32D2D; }
 
-/* ─── PERMISSION MATRIX ─── */
-.perm-matrix { border: 1px solid #dde2e5; border-radius: var(--radius-lg); overflow: hidden; }
-.perm-row {
-  display: grid;
-  grid-template-columns: 180px repeat(var(--perm-cols, 4), 1fr);
-  align-items: center; border-bottom: 1px solid #edf0f2;
-}
-.perm-row:last-child { border-bottom: none; }
-.perm-row.header { background: #f0f4f5; }
-.perm-cell { padding: 11px 14px; font-size: 13px; text-align: center; }
-.perm-cell:first-child { text-align: left; }
-.perm-row.header .perm-cell {
-  font-size: 10px; font-weight: 700; color: #5a6970;
-  text-transform: uppercase; letter-spacing: .08em;
-}
-.check {
-  width: 19px; height: 19px; border-radius: 3px;
-  border: 1.5px solid #cdd3d7;
-  display: inline-flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all .15s;
-  font-size: 11px; font-weight: 700;
-  background: var(--white); color: transparent;
-}
-.check.on { background: var(--green-primary); border-color: var(--green-primary); color: #fff; }
-.check:hover:not(.on) { border-color: var(--green-primary); }
-
 /* ─── MISC ─── */
 code {
   font-size: 12px; background: #edf0f2;

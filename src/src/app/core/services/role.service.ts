@@ -91,21 +91,6 @@ export class RoleService {
     );
   }
 
-  saveMatrix(matrix: Record<number, number[]>): Observable<void> {
-    const calls: Observable<unknown>[] = [];
-    for (const [roleIdStr, nextIds] of Object.entries(matrix)) {
-      const roleId = Number(roleIdStr);
-      const current = this.getById(roleId);
-      this.collectPermissionCalls(calls, roleId, current?.permissionIds ?? [], nextIds);
-    }
-    const ops$: Observable<unknown> = calls.length ? forkJoin(calls) : of(null);
-    return ops$.pipe(
-      switchMap(() => this.list()),
-      map(() => undefined),
-      catchError(err => throwError(() => toError(err))),
-    );
-  }
-
   private collectPermissionCalls(
     calls: Observable<unknown>[],
     roleId: number,

@@ -2,97 +2,88 @@
 <h1 class="page-title">Roles</h1>
 <p class="page-subtitle">Definí los roles del sistema y asignales permisos.</p>
 
-<div style="text-align:right;margin-bottom:16px">
-  <button type="button" class="btn-main" *hgHasPermission="'roles:manage'" (click)="openCreate.set(true)">+ Nuevo rol</button>
+<div style="text-align: right; margin-bottom: 16px">
+  <button
+    type="button"
+    class="btn-main"
+    *hgHasPermission="'roles:manage'"
+    (click)="openCreate.set(true)"
+  >
+    + Nuevo rol
+  </button>
 </div>
 
-<div class="tabs" role="tablist" aria-label="Vistas de roles">
-  <button type="button" class="tab" role="tab" [attr.aria-selected]="tab() === 'list'" [class.active]="tab() === 'list'" (click)="tab.set('list')">Lista de roles</button>
-  <button type="button" class="tab" role="tab" [attr.aria-selected]="tab() === 'matrix'" [class.active]="tab() === 'matrix'" (click)="tab.set('matrix')">Matriz de permisos</button>
-</div>
-
-@switch (tab()) {
-  @case ('list') {
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Rol</th>
-            <th scope="col">Permisos</th>
-            <th scope="col">Usuarios</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (r of paged(); track r.id) {
-            <tr>
-              <td><span class="badge" [class]="'badge badge-' + r.color">{{ r.name }}</span></td>
-              <td>
-                @for (p of firstPerms(r, 3); track p.id) {
-                  <span class="badge badge-gray">{{ p.name }}</span>
-                }
-                @if (r.permissionIds.length > 3) {
-                  <span class="badge badge-gray">+{{ r.permissionIds.length - 3 }} más</span>
-                }
-                @if (r.permissionIds.length === 0) {
-                  <span class="cell-muted">—</span>
-                }
-              </td>
-              <td>{{ userCount(r.id) }}</td>
-              <td>
-                <div class="actions">
-                  <button type="button" class="btn-outline" *hgHasPermission="'roles:manage'" (click)="edit(r)">Editar</button>
-                  <button type="button" class="btn-danger" *hgHasPermission="'roles:manage'" (click)="deleting.set(r)">Eliminar</button>
-                </div>
-              </td>
-            </tr>
-          }
-          @if (roles().length === 0) {
-            <tr><td colspan="4" class="empty-state">No hay roles definidos.</td></tr>
-          }
-        </tbody>
-      </table>
-    </div>
-    <div class="pagination">
-      <button type="button" class="pg-btn" [disabled]="page() === 1" (click)="prev()" aria-label="Página anterior">←</button>
-      @for (n of pages(); track n) {
-        <button type="button" class="pg-btn" [class.active]="page() === n" (click)="page.set(n)">{{ n }}</button>
-      }
-      <button type="button" class="pg-btn" [disabled]="page() === totalPages()" (click)="next()" aria-label="Página siguiente">→</button>
-    </div>
-  }
-  @case ('matrix') {
-    <div class="perm-matrix" [style.--perm-cols]="roles().length">
-      <div class="perm-row header">
-        <div class="perm-cell">Permiso</div>
-        @for (r of roles(); track r.id) {
-          <div class="perm-cell">{{ r.name }}</div>
-        }
-      </div>
-      @for (p of permissions(); track p.id) {
-        <div class="perm-row">
-          <div class="perm-cell"><code>{{ p.name }}</code></div>
-          @for (r of roles(); track r.id) {
-            <div class="perm-cell">
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Rol</th>
+        <th scope="col">Usuarios</th>
+        <th scope="col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of paged(); track r.id) {
+        <tr>
+          <td>
+            <span class="badge" [class]="'badge badge-' + r.color">{{ r.name }}</span>
+          </td>
+          <td>{{ userCount(r.id) }}</td>
+          <td>
+            <div class="actions">
               <button
                 type="button"
-                class="check"
-                [class.on]="isChecked(r.id, p.id)"
-                [disabled]="!canManageRolePerms()"
-                [attr.aria-label]="(isChecked(r.id, p.id) ? 'Quitar ' : 'Asignar ') + p.name + ' a ' + r.name"
-                [attr.aria-pressed]="isChecked(r.id, p.id)"
-                (click)="toggleCheck(r.id, p.id)"
-              >{{ isChecked(r.id, p.id) ? '✓' : '' }}</button>
+                class="btn-outline"
+                *hgHasPermission="'roles:manage'"
+                (click)="edit(r)"
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                class="btn-danger"
+                *hgHasPermission="'roles:manage'"
+                (click)="deleting.set(r)"
+              >
+                Eliminar
+              </button>
             </div>
-          }
-        </div>
+          </td>
+        </tr>
       }
-    </div>
-    <div style="margin-top:16px;text-align:right">
-      <button type="button" class="btn-main" *hgHasPermission="'roles:permissions:manage'" (click)="saveMatrix()">Guardar cambios</button>
-    </div>
+      @if (roles().length === 0) {
+        <tr>
+          <td colspan="3" class="empty-state">No hay roles definidos.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="pagination">
+  <button
+    type="button"
+    class="pg-btn"
+    [disabled]="page() === 1"
+    (click)="prev()"
+    aria-label="Página anterior"
+  >
+    ←
+  </button>
+  @for (n of pages(); track n) {
+    <button type="button" class="pg-btn" [class.active]="page() === n" (click)="page.set(n)">
+      {{ n }}
+    </button>
   }
-}
+  <button
+    type="button"
+    class="pg-btn"
+    [disabled]="page() === totalPages()"
+    (click)="next()"
+    aria-label="Página siguiente"
+  >
+    →
+  </button>
+</div>
 
 <app-role-create-modal
   [open]="openCreate()"
