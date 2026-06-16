@@ -57,10 +57,6 @@ export class PermissionsListComponent implements OnInit {
     if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
   }
 
-  rolesFor(p: Permission): string {
-    return p.roleNames.length > 0 ? p.roleNames.join(', ') : '—';
-  }
-
   onCreated(p: Permission): void {
     this.openCreate.set(false);
     this.toast.show(`Permiso "${p.name}" creado correctamente`);

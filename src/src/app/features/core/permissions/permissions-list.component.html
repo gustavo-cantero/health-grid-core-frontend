@@ -21,7 +21,12 @@
         <tr>
           <td class="cell-id">#{{ p.id }}</td>
           <td><code>{{ p.name }}</code></td>
-          <td>{{ rolesFor(p) }}</td>
+          <td>
+            @for (role of p.roleNames; track role) {
+              <span class="badge badge-gray">{{ role }}</span>
+            }
+            @if (p.roleNames.length === 0) { <span class="cell-muted">—</span> }
+          </td>
           <td>
             <div class="actions">
               <button type="button" class="btn-outline" *hgHasPermission="'permissions:manage'" (click)="edit(p)">Editar</button>
