@@ -122,51 +122,33 @@ export class UserEditModalComponent {
     });
   }
 
-  saveData(): void {
+  // Guarda en una sola operación los cambios de todas las solapas (datos,
+  // roles, especialidades y ubicaciones). El servicio diferencia internamente
+  // qué cambió, por lo que enviar campos sin modificar no genera llamadas.
+  save(): void {
     const u = this.user();
-    if (!u || this.dataForm.invalid) {
+    if (!u) return;
+    if (this.dataForm.invalid) {
+      // Si los datos son inválidos, vuelvo a esa solapa para mostrar el error.
+      this.tab.set('datos');
       this.dataForm.markAllAsTouched();
       return;
     }
     this.loading.set(true);
-    this.users.update(u.id, this.dataForm.getRawValue()).subscribe((saved) => {
-      this.loading.set(false);
-      this.toast.show(`Datos de "${saved.firstName} ${saved.lastName}" actualizados`);
-      this.updated.emit(saved);
-    });
-  }
-
-  saveRoles(): void {
-    const u = this.user();
-    if (!u) return;
-    this.loading.set(true);
-    this.users.update(u.id, { roleIds: this.draftRoleIds() }).subscribe((saved) => {
-      this.loading.set(false);
-      this.toast.show('Roles actualizados correctamente');
-      this.updated.emit(saved);
-    });
-  }
-
-  saveSpecs(): void {
-    const u = this.user();
-    if (!u) return;
-    this.loading.set(true);
-    this.users.update(u.id, { specialityIds: this.draftSpecIds() }).subscribe((saved) => {
-      this.loading.set(false);
-      this.toast.show('Especialidades actualizadas correctamente');
-      this.updated.emit(saved);
-    });
-  }
-
-  saveLocs(): void {
-    const u = this.user();
-    if (!u) return;
-    this.loading.set(true);
-    this.users.update(u.id, { locationIds: this.draftLocIds() }).subscribe((saved) => {
-      this.loading.set(false);
-      this.toast.show('Ubicaciones actualizadas correctamente');
-      this.updated.emit(saved);
-    });
+    this.users
+      .update(u.id, {
+        // Sólo envío los datos básicos si cambiaron, para no disparar un PUT
+        // innecesario cuando únicamente se editan las relaciones.
+        ...(this.dataForm.dirty ? this.dataForm.getRawValue() : {}),
+        roleIds: this.draftRoleIds(),
+        specialityIds: this.draftSpecIds(),
+        locationIds: this.draftLocIds(),
+      })
+      .subscribe((saved) => {
+        this.loading.set(false);
+        this.toast.show(`Cambios de "${saved.firstName} ${saved.lastName}" guardados`);
+        this.updated.emit(saved);
+      });
   }
 
   protected readonly isDirty = computed(() => {

@@ -15,7 +15,7 @@
 
     @switch (tab()) {
       @case ('datos') {
-        <form [formGroup]="dataForm" (ngSubmit)="saveData()" novalidate>
+        <form [formGroup]="dataForm" (ngSubmit)="save()" novalidate>
           <div class="form-row">
             <div class="form-group">
               <label for="ue-first">Nombre</label>
@@ -66,7 +66,7 @@
         />
         <div class="modal-footer">
           <button type="button" class="btn-cancel" (click)="requestClose()">Cancelar</button>
-          <button type="button" class="btn-main" [disabled]="loading()" (click)="saveRoles()">Guardar cambios</button>
+          <button type="button" class="btn-main" [disabled]="loading()" (click)="save()">Guardar cambios</button>
         </div>
       }
       @case ('specs') {
@@ -81,7 +81,7 @@
         />
         <div class="modal-footer">
           <button type="button" class="btn-cancel" (click)="requestClose()">Cancelar</button>
-          <button type="button" class="btn-main" [disabled]="loading()" (click)="saveSpecs()">Guardar cambios</button>
+          <button type="button" class="btn-main" [disabled]="loading()" (click)="save()">Guardar cambios</button>
         </div>
       }
       @case ('locs') {
@@ -96,7 +96,7 @@
         />
         <div class="modal-footer">
           <button type="button" class="btn-cancel" (click)="requestClose()">Cancelar</button>
-          <button type="button" class="btn-main" [disabled]="loading()" (click)="saveLocs()">Guardar cambios</button>
+          <button type="button" class="btn-main" [disabled]="loading()" (click)="save()">Guardar cambios</button>
         </div>
       }
     }
