@@ -1,0 +1,9 @@
+services:
+    frontend:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: daii-frontend
+        restart: unless-stopped
+        expose:
+            - "80"
