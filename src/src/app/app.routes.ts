@@ -23,6 +23,13 @@ export const routes: Routes = [
         (m) => m.ForgotPasswordComponent,
       ),
   },
+  {
+    path: 'auth/verify-account',
+    loadComponent: () =>
+      import('./features/auth/verify-account/verify-account.component').then(
+        (m) => m.VerifyAccountComponent,
+      ),
+  },
 
   {
     path: '',
@@ -35,6 +42,14 @@ export const routes: Routes = [
         canActivate: [permissionGuard(PERMISSIONS.users.read)],
         loadComponent: () =>
           import('./features/core/users/users-list.component').then((m) => m.UsersListComponent),
+      },
+      {
+        path: 'core/account-verification',
+        canActivate: [permissionGuard(PERMISSIONS.users.create)],
+        loadComponent: () =>
+          import('./features/core/account-verification/account-verification.component').then(
+            (m) => m.AccountVerificationComponent,
+          ),
       },
       {
         path: 'core/roles',

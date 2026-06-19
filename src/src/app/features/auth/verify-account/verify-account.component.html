@@ -1,0 +1,93 @@
+<div class="auth-page verify-page">
+  <div class="auth-card verify-card">
+    <div class="auth-logo-wrap">
+      <div class="auth-logo-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <h1 class="auth-title">Crear contraseña</h1>
+      <p class="auth-sub">Activa tu cuenta para ingresar a Health Grid</p>
+    </div>
+
+    @if (!hasToken()) {
+      <div class="verify-alert">
+        <strong>Link invalido</strong>
+        <span>El enlace no incluye un token de activacion. Pedi al administrador que reenvie la invitacion.</span>
+      </div>
+    } @else {
+      <div class="intro-copy">
+        <p>Te damos la bienvenida.</p>
+        <p>Para finalizar la activacion de tu cuenta, crea una contraseña segura.</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <div class="password-field">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              (click)="showPassword.update((value) => !value)"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                @if (showPassword()) {
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C7 20 2.73 16.89 1 12a18.45 18.45 0 0 1 5.06-6.06"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c5 0 9.27 3.11 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <path d="M14.12 14.12a3 3 0 0 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                } @else {
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                }
+              </svg>
+            </button>
+          </div>
+          @if (form.controls.password.touched && form.controls.password.invalid) {
+            <span class="form-error">Ingresá una contraseña.</span>
+          }
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirmar contraseña</label>
+          <div class="password-field">
+            <input
+              id="confirmPassword"
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              [attr.aria-label]="showConfirmPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              (click)="showConfirmPassword.update((value) => !value)"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                @if (showConfirmPassword()) {
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C7 20 2.73 16.89 1 12a18.45 18.45 0 0 1 5.06-6.06"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c5 0 9.27 3.11 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <path d="M14.12 14.12a3 3 0 0 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                } @else {
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                }
+              </svg>
+            </button>
+          </div>
+          @if (form.controls.confirmPassword.touched && form.controls.password.value !== form.controls.confirmPassword.value) {
+            <span class="form-error">Las contraseñas no coinciden.</span>
+          }
+        </div>
+        <button type="submit" class="btn-primary" [disabled]="submitting()">
+          {{ submitting() ? 'Activando cuenta...' : 'Crear contraseña' }}
+        </button>
+      </form>
+    }
+  </div>
+</div>

@@ -1,0 +1,83 @@
+.verify-page {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.verify-card {
+  max-width: 460px;
+}
+
+.verify-alert {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 20px;
+  padding: 13px 14px;
+  border: 1px solid #f5b8b8;
+  border-radius: var(--radius-lg);
+  background: #fff8f8;
+  color: #7a1f1f;
+}
+
+.verify-alert strong {
+  font-size: 14px;
+}
+
+.verify-alert span {
+  line-height: 1.45;
+}
+
+.intro-copy {
+  margin-bottom: 22px;
+  color: #444;
+  line-height: 1.5;
+}
+
+.intro-copy p + p {
+  margin-top: 8px;
+}
+
+.btn-primary:disabled {
+  background: #b9c5c0;
+  cursor: not-allowed;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 44px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: #66737a;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.password-toggle:hover {
+  background: #edf0f2;
+  color: var(--green-dark);
+}
+
+.password-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

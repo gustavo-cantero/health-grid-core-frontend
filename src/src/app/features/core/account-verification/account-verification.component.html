@@ -1,0 +1,90 @@
+<div class="page-eyebrow">Gestion</div>
+<h1 class="page-title">Alta de usuarios</h1>
+<p class="page-subtitle">
+  Crea usuarios nuevos y administra las invitaciones pendientes de activacion.
+</p>
+
+<div class="invite-layout">
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <h2>Nuevo usuario</h2>
+        <p>El usuario recibira un email para activar su cuenta y elegir su contrasena.</p>
+      </div>
+    </div>
+
+    <form class="invite-form" [formGroup]="form" (ngSubmit)="createInvite()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Nombre</label>
+          <input id="firstName" type="text" formControlName="firstName" />
+        </div>
+        <div class="form-group">
+          <label for="lastName">Apellido</label>
+          <input id="lastName" type="text" formControlName="lastName" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" />
+      </div>
+      <div class="form-group">
+        <label for="role">Rol inicial</label>
+        <select id="role" formControlName="role">
+          @for (role of roles; track role) {
+            <option [value]="role">{{ role }}</option>
+          }
+        </select>
+      </div>
+      <button type="submit" class="btn-main" [disabled]="sending()">
+        {{ sending() ? 'Enviando invitacion...' : 'Crear usuario' }}
+      </button>
+    </form>
+  </section>
+</div>
+
+<section class="panel flow-panel">
+  <div class="panel-heading">
+    <div>
+      <h2>Invitaciones</h2>
+      <p>Consulta el estado de activacion y reenvia invitaciones pendientes.</p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Expira</th>
+          <th>Token</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (invite of invites(); track invite.id) {
+          <tr>
+            <td style="font-weight:600">{{ invite.name }}</td>
+            <td class="cell-muted">{{ invite.email }}</td>
+            <td><span class="badge badge-blue">{{ invite.role }}</span></td>
+            <td>
+              <span class="badge" [class.badge-green]="invite.status === 'Verificada'" [class.badge-amber]="invite.status === 'Pendiente'" [class.badge-red]="invite.status === 'Expirada'">
+                {{ invite.status }}
+              </span>
+            </td>
+            <td class="cell-id">{{ invite.expiresAt }}</td>
+            <td><code>{{ invite.tokenPreview }}</code></td>
+            <td>
+              <button type="button" class="btn-outline" [disabled]="invite.status === 'Verificada'" (click)="resendInvite(invite)">
+                Reenviar
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
