@@ -282,6 +282,17 @@ button { font-family: inherit; }
   transition: all .15s;
 }
 .btn-outline:hover { background: #f0f3f5; border-color: #888; }
+.btn-outline:disabled {
+  background: #e5e7e8;
+  border-color: #d6dade;
+  color: #a7adb2;
+  cursor: not-allowed;
+  opacity: 1;
+}
+.btn-outline:disabled:hover {
+  background: #e5e7e8;
+  border-color: #d6dade;
+}
 
 .btn-danger {
   background: var(--white); color: #A32D2D;
@@ -346,6 +357,8 @@ td {
 tr:last-child td { border-bottom: none; }
 tbody tr:hover td { background: #f7f9fa; }
 .actions { display: flex; gap: 6px; }
+.actions [title] { display: inline-flex; }
+.actions [title] > button:disabled { pointer-events: none; }
 .cell-muted { color: #888; }
 .cell-id { color: #aaa; }
 

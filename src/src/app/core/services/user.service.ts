@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin, map, of, switchMap, tap, throwError, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreateUserPayload, UpdateUserPayload, User } from '../models/user.model';
+import { AdminCreateUserPayload, UpdateUserPayload, User } from '../models/user.model';
 import { ApiUser, PaginatedResponse } from '../models/api.model';
 import { toError } from '../utils/api-error';
 import { colorForId } from './role.service';
@@ -39,16 +39,22 @@ export class UserService {
     );
   }
 
-  create(payload: CreateUserPayload): Observable<User> {
+  create(payload: AdminCreateUserPayload): Observable<User> {
     const body = {
       first_name: payload.firstName,
       last_name: payload.lastName,
       email: payload.email,
-      password: payload.password,
     };
     return this.http.post<ApiUser>(this.baseUrl, body).pipe(
       map(fromApi),
       tap((created) => this.store.update((list) => [...list, created])),
+      catchError((err) => throwError(() => toError(err))),
+    );
+  }
+
+  resendVerification(id: number): Observable<void> {
+    return this.http.post(`${this.baseUrl}/${id}/resend-verification`, {}).pipe(
+      map(() => undefined),
       catchError((err) => throwError(() => toError(err))),
     );
   }
@@ -177,6 +183,7 @@ function fromApi(apiUser: ApiUser): User {
     lastName: apiUser.last_name,
     email: apiUser.email,
     createdAt: apiUser.created_at,
+    hasCredentials: apiUser.has_credentials,
     roleIds: roles.map((r) => r.id),
     specialityIds: specialities.map((s) => s.id),
     locationIds: locations.map((l) => l.id),

@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { ToastComponent } from '../../shared/ui/toast/toast.component';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-shell',
@@ -10,4 +11,10 @@ import { ToastComponent } from '../../shared/ui/toast/toast.component';
   styleUrls: ['./shell.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ShellComponent {}
+export class ShellComponent {
+  private readonly auth = inject(AuthService);
+
+  constructor() {
+    this.auth.hydrateCurrentSession();
+  }
+}

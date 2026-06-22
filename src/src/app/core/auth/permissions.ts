@@ -43,12 +43,6 @@ export interface ModuleDef {
 // de lectura para que se le permita iniciar sesión.
 export const CORE_MODULES: readonly ModuleDef[] = [
   { key: 'users', label: 'Usuarios', path: '/core/users', read: PERMISSIONS.users.read },
-  {
-    key: 'account-verification',
-    label: 'Alta de usuarios',
-    path: '/core/account-verification',
-    read: PERMISSIONS.users.create,
-  },
   { key: 'roles', label: 'Roles', path: '/core/roles', read: PERMISSIONS.roles.read },
   {
     key: 'permissions',

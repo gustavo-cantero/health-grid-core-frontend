@@ -44,14 +44,6 @@ export const routes: Routes = [
           import('./features/core/users/users-list.component').then((m) => m.UsersListComponent),
       },
       {
-        path: 'core/account-verification',
-        canActivate: [permissionGuard(PERMISSIONS.users.create)],
-        loadComponent: () =>
-          import('./features/core/account-verification/account-verification.component').then(
-            (m) => m.AccountVerificationComponent,
-          ),
-      },
-      {
         path: 'core/roles',
         canActivate: [permissionGuard(PERMISSIONS.roles.read)],
         loadComponent: () =>

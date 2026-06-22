@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   computed,
   inject,
   input,
@@ -8,10 +9,12 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { switchMap } from 'rxjs';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { ConfirmUnsavedComponent } from '../../../shared/ui/confirm-unsaved/confirm-unsaved.component';
 import { UserService } from '../../../core/services/user.service';
 import { User } from '../../../core/models/user.model';
+import { RoleService } from '../../../core/services/role.service';
 
 @Component({
   selector: 'app-user-create-modal',
@@ -20,9 +23,10 @@ import { User } from '../../../core/models/user.model';
   styleUrls: ['./user-create-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserCreateModalComponent {
+export class UserCreateModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly users = inject(UserService);
+  private readonly rolesService = inject(RoleService);
 
   readonly open = input<boolean>(false);
   readonly close = output<void>();
@@ -30,15 +34,23 @@ export class UserCreateModalComponent {
 
   protected readonly loading = signal<boolean>(false);
   protected readonly confirmingCancel = signal<boolean>(false);
+  protected readonly roles = this.rolesService.roles;
+  protected readonly assignableRoles = computed(() =>
+    this.roles().filter((role) => role.name.trim().toLowerCase() !== 'admin'),
+  );
 
   protected readonly form = this.fb.nonNullable.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    roleId: [0, [Validators.required, Validators.min(1)]],
   });
 
   protected readonly isDirty = computed(() => this.form.dirty);
+
+  ngOnInit(): void {
+    this.rolesService.list().subscribe();
+  }
 
   requestClose(): void {
     if (this.isDirty()) {
@@ -59,10 +71,18 @@ export class UserCreateModalComponent {
       return;
     }
     this.loading.set(true);
-    this.users.create(this.form.getRawValue()).subscribe((user) => {
-      this.loading.set(false);
-      this.form.reset({ firstName: '', lastName: '', email: '', password: '' });
-      this.created.emit(user);
-    });
+    const { roleId, ...payload } = this.form.getRawValue();
+    this.users
+      .create(payload)
+      .pipe(
+        switchMap((user) =>
+          this.users.assignRole(user.id, roleId).pipe(switchMap(() => this.users.get(user.id))),
+        ),
+      )
+      .subscribe((user) => {
+        this.loading.set(false);
+        this.form.reset({ firstName: '', lastName: '', email: '', roleId: 0 });
+        this.created.emit(user);
+      });
   }
 }

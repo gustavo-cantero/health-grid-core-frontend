@@ -17,6 +17,7 @@ export interface User {
   lastName: string;
   email: string;
   createdAt: string;
+  hasCredentials: boolean;
   roleIds: number[];
   specialityIds: number[];
   locationIds: number[];
@@ -31,6 +32,12 @@ export interface CreateUserPayload {
   lastName: string;
   email: string;
   password: string;
+}
+
+export interface AdminCreateUserPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
 export interface UpdateUserPayload {

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-verify-account',
@@ -13,8 +14,10 @@ export class VerifyAccountComponent {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
   protected readonly submitting = signal<boolean>(false);
+  protected readonly error = signal<string | null>(null);
   protected readonly showPassword = signal<boolean>(false);
   protected readonly showConfirmPassword = signal<boolean>(false);
   protected readonly token = this.route.snapshot.queryParamMap.get('token') ?? '';
@@ -36,9 +39,17 @@ export class VerifyAccountComponent {
     }
 
     this.submitting.set(true);
-    window.setTimeout(() => {
-      this.submitting.set(false);
-      this.router.navigateByUrl('/login');
-    }, 450);
+    this.error.set(null);
+    this.auth.verifyAccount(this.token, this.form.controls.password.value).subscribe({
+      next: () => {
+        this.submitting.set(false);
+        this.auth.clearSession();
+        this.router.navigateByUrl('/login');
+      },
+      error: (err: Error) => {
+        this.submitting.set(false);
+        this.error.set(err.message || 'No se pudo activar la cuenta.');
+      },
+    });
   }
 }

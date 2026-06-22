@@ -11,6 +11,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { User } from '../../../core/models/user.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { PERMISSIONS } from '../../../core/auth/permissions';
 import { UserCreateModalComponent } from './user-create-modal.component';
 import { UserEditModalComponent } from './user-edit-modal.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
@@ -34,15 +36,22 @@ const PAGE_SIZE = 10;
 export class UsersListComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly toast = inject(ToastService);
+  private readonly auth = inject(AuthService);
 
   protected readonly users = this.userService.users;
   protected readonly openCreate = signal<boolean>(false);
   protected readonly editing = signal<User | null>(null);
   protected readonly deleting = signal<User | null>(null);
+  protected readonly resendingActivationId = signal<number | null>(null);
   protected readonly page = signal<number>(1);
 
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
   protected readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: '' });
+  protected readonly canCreateUsers = computed(
+    () =>
+      this.auth.currentUser()?.role.trim().toLowerCase() === 'admin' &&
+      this.auth.has(PERMISSIONS.users.create),
+  );
 
   protected readonly filtered = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
@@ -102,7 +111,7 @@ export class UsersListComponent implements OnInit {
 
   onCreated(user: User): void {
     this.openCreate.set(false);
-    this.toast.show(`Usuario "${user.firstName} ${user.lastName}" creado correctamente`);
+    this.toast.show(`Usuario "${user.firstName} ${user.lastName}" creado. Email de activacion enviado`);
   }
 
   // Pide el detalle del usuario a la API antes de abrir el modal de edición.
@@ -120,6 +129,25 @@ export class UsersListComponent implements OnInit {
     this.userService.remove(u.id).subscribe(() => {
       this.deleting.set(null);
       this.toast.show('Usuario eliminado (soft delete aplicado)');
+    });
+  }
+
+  resendActivation(u: User): void {
+    if (u.hasCredentials || this.resendingActivationId() !== null) return;
+    this.resendingActivationId.set(u.id);
+    this.userService.resendVerification(u.id).subscribe({
+      next: () => {
+        this.resendingActivationId.set(null);
+        this.toast.show(`Email de activacion reenviado a ${u.email}`);
+      },
+      error: (err: Error) => {
+        this.resendingActivationId.set(null);
+        const message = /activated|verified/i.test(err.message)
+          ? 'La cuenta ya tiene credenciales'
+          : err.message || 'No se pudo reenviar la activacion';
+        this.toast.show(message);
+        this.userService.get(u.id).subscribe();
+      },
     });
   }
 }

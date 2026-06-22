@@ -7,7 +7,9 @@
     <label for="users-search" class="visually-hidden">Buscar usuarios</label>
     <input id="users-search" type="search" [formControl]="searchControl" placeholder="Buscar por nombre o email..." />
   </div>
-  <button type="button" class="btn-main" *hgHasPermission="'users:create'" (click)="openCreate.set(true)">+ Nuevo usuario</button>
+  @if (canCreateUsers()) {
+    <button type="button" class="btn-main" (click)="openCreate.set(true)">+ Nuevo usuario</button>
+  }
 </div>
 
 <div class="table-wrap">
@@ -55,6 +57,18 @@
           <td>
             <div class="actions">
               <button type="button" class="btn-outline" *hgHasPermission="['users:write', 'users:roles:manage', 'users:specialities:manage', 'users:locations:manage']" (click)="edit(u)">Editar</button>
+              @if (canCreateUsers()) {
+                <span [attr.title]="u.hasCredentials ? 'Este usuario ya tiene credenciales' : 'Reenviar email de activacion'">
+                  <button
+                    type="button"
+                    class="btn-outline"
+                    [disabled]="u.hasCredentials || resendingActivationId() !== null"
+                    (click)="resendActivation(u)"
+                  >
+                    {{ resendingActivationId() === u.id ? 'Reenviando...' : 'Reenviar activacion' }}
+                  </button>
+                </span>
+              }
               <button type="button" class="btn-danger" *hgHasPermission="'users:delete'" (click)="deleting.set(u)">Eliminar</button>
             </div>
           </td>

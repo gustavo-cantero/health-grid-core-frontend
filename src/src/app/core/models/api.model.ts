@@ -45,6 +45,7 @@ export interface ApiUser {
   created_at: string;
   updated_at?: string;
   deleted_at?: string | null;
+  has_credentials: boolean;
   roles?: ApiRole[];
   locations?: ApiLocation[];
   specialities?: ApiSpeciality[];

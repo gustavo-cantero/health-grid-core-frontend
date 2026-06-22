@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
+import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CreateUserPayload } from '../models/user.model';
 import { ApiAuthResponse, ApiUser } from '../models/api.model';
@@ -62,6 +62,7 @@ export class AuthService {
   login(email: string, password: string): Observable<SessionUser> {
     return this.http.post<ApiAuthResponse>(`${this.baseUrl}/login`, { email, password }).pipe(
       map((res) => this.persistWithAccessCheck(res)),
+      switchMap((user) => this.hydrateSession(user.id)),
       catchError((err) => throwError(() => toError(err))),
     );
   }
@@ -75,8 +76,15 @@ export class AuthService {
     };
     return this.http.post<ApiAuthResponse>(`${this.baseUrl}/register`, body).pipe(
       map((res) => this.persistWithAccessCheck(res)),
+      switchMap((user) => this.hydrateSession(user.id)),
       catchError((err) => throwError(() => toError(err))),
     );
+  }
+
+  hydrateCurrentSession(): void {
+    const user = this._currentUser();
+    if (!user || !this._token) return;
+    this.hydrateSession(user.id).subscribe();
   }
 
   requestReset(email: string): Observable<void> {
@@ -93,6 +101,13 @@ export class AuthService {
         map(() => undefined),
         catchError((err) => throwError(() => toError(err))),
       );
+  }
+
+  verifyAccount(token: string, password: string): Observable<void> {
+    return this.http.post<ApiAuthResponse>(`${this.baseUrl}/verify-account`, { token, password }).pipe(
+      map(() => undefined),
+      catchError((err) => throwError(() => toError(err))),
+    );
   }
 
   changePassword(currentPassword: string, newPassword: string): Observable<void> {
@@ -176,6 +191,20 @@ export class AuthService {
     localStorage.setItem(TOKEN_KEY, res.token);
     localStorage.setItem(SESSION_KEY, JSON.stringify(user));
     return user;
+  }
+
+  private hydrateSession(userId: number): Observable<SessionUser> {
+    return this.http.get<ApiUser>(`${environment.apiBaseUrl}/users/${userId}`).pipe(
+      map((apiUser) => this.toSessionUser(apiUser)),
+      tap((user) => {
+        this._currentUser.set(user);
+        localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+      }),
+      catchError(() => {
+        const current = this._currentUser();
+        return current ? of(current) : throwError(() => new Error('No hay una sesión activa.'));
+      }),
+    );
   }
 
   private toSessionUser(apiUser: ApiUser): SessionUser {
