@@ -81,10 +81,15 @@ export class UserCreateModalComponent implements OnInit {
     this.users
       .create({ ...rest, roleId })
       .pipe(switchMap((user) => this.users.get(user.id)))
-      .subscribe((user) => {
-        this.loading.set(false);
-        this.form.reset({ firstName: '', lastName: '', email: '', roleId: 0 });
-        this.created.emit(user);
+      .subscribe({
+        next: (user) => {
+          this.loading.set(false);
+          this.form.reset({ firstName: '', lastName: '', email: '', roleId: 0 });
+          this.created.emit(user);
+        },
+        error: () => {
+          this.loading.set(false);
+        },
       });
   }
 }
