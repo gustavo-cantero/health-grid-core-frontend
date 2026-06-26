@@ -15,6 +15,8 @@ import { ConfirmUnsavedComponent } from '../../../shared/ui/confirm-unsaved/conf
 import { UserService } from '../../../core/services/user.service';
 import { User } from '../../../core/models/user.model';
 import { RoleService } from '../../../core/services/role.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { Role } from '../../../core/models/role.model';
 
 @Component({
   selector: 'app-user-create-modal',
@@ -27,6 +29,7 @@ export class UserCreateModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly users = inject(UserService);
   private readonly rolesService = inject(RoleService);
+  private readonly auth = inject(AuthService);
 
   readonly open = input<boolean>(false);
   readonly close = output<void>();
@@ -35,9 +38,12 @@ export class UserCreateModalComponent implements OnInit {
   protected readonly loading = signal<boolean>(false);
   protected readonly confirmingCancel = signal<boolean>(false);
   protected readonly roles = this.rolesService.roles;
-  protected readonly assignableRoles = computed(() =>
-    this.roles().filter((role) => role.name.trim().toLowerCase() !== 'admin'),
-  );
+  protected readonly assignableRoles = computed(() => {
+    const isAdmin = this.auth.currentUser()?.role.trim().toLowerCase() === 'admin';
+    return isAdmin
+      ? this.roles()
+      : this.roles().filter((role: Role) => role.name.trim().toLowerCase() !== 'admin');
+  });
 
   protected readonly form = this.fb.nonNullable.group({
     firstName: ['', Validators.required],
