@@ -8,8 +8,7 @@ import { toError } from '../utils/api-error';
 
 const PAGE_SIZE = 1000;
 
-// The API has no notion of a role color; derive one deterministically so badges
-// stay stable across reloads.
+
 const COLOR_PALETTE: RoleColor[] = ['green', 'blue', 'amber', 'red', 'teal', 'dark', 'gray'];
 
 export function colorForId(id: number): RoleColor {

@@ -1,8 +1,3 @@
-// Helpers mínimos de JWT del lado del cliente. Acá el token solo se *decodifica*
-// (nunca se valida la firma — el servidor es la fuente de verdad); leemos el claim
-// `permissions` para manejar la autorización en la UI y `exp` para descartar
-// sesiones vencidas.
-
 export interface JwtPayload {
   permissions?: string[];
   exp?: number;

@@ -4,11 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
-/**
- * Attaches the Bearer token to every request aimed at our API (relative URLs in
- * dev — proxied — or the configured absolute base URL in prod) and, on a 401,
- * clears the session and redirects to /login.
- */
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -31,7 +27,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 };
 
 function isApiUrl(url: string): boolean {
-  // Relative URLs (dev, via proxy) or absolute URLs to our own API.
   return url.startsWith('/') || url.startsWith('http');
 }
 

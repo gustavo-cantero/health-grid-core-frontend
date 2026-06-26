@@ -1,6 +1,3 @@
-// Raw shapes returned by the Core API (snake_case, nested objects).
-// These are mapped to the front-end models inside each service.
-
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;

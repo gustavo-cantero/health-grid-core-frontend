@@ -1,10 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-/**
- * Normalizes an HttpErrorResponse into an Error whose `message` is the API's
- * `{ error: string }` body when present, so components that display
- * `err.message` show a meaningful message.
- */
+
 export function toError(err: unknown): Error {
   if (err instanceof HttpErrorResponse) {
     const body = err.error as { error?: string } | string | null;
