@@ -38,6 +38,7 @@ export interface AdminCreateUserPayload {
   firstName: string;
   lastName: string;
   email: string;
+  roleId: number;
 }
 
 export interface UpdateUserPayload {

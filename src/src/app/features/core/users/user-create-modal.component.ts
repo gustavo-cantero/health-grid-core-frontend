@@ -71,14 +71,10 @@ export class UserCreateModalComponent implements OnInit {
       return;
     }
     this.loading.set(true);
-    const { roleId, ...payload } = this.form.getRawValue();
+    const { roleId, ...rest } = this.form.getRawValue();
     this.users
-      .create(payload)
-      .pipe(
-        switchMap((user) =>
-          this.users.assignRole(user.id, roleId).pipe(switchMap(() => this.users.get(user.id))),
-        ),
-      )
+      .create({ ...rest, roleId })
+      .pipe(switchMap((user) => this.users.get(user.id)))
       .subscribe((user) => {
         this.loading.set(false);
         this.form.reset({ firstName: '', lastName: '', email: '', roleId: 0 });

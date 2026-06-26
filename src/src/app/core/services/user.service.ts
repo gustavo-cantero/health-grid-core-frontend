@@ -44,6 +44,7 @@ export class UserService {
       first_name: payload.firstName,
       last_name: payload.lastName,
       email: payload.email,
+      role_id: payload.roleId,
     };
     return this.http.post<ApiUser>(this.baseUrl, body).pipe(
       map(fromApi),
