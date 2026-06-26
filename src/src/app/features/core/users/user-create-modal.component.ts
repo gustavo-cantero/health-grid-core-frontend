@@ -37,6 +37,7 @@ export class UserCreateModalComponent implements OnInit {
 
   protected readonly loading = signal<boolean>(false);
   protected readonly confirmingCancel = signal<boolean>(false);
+  protected readonly errorMessage = signal<string | null>(null);
   protected readonly roles = this.rolesService.roles;
   protected readonly assignableRoles = computed(() => {
     const isAdmin = this.auth.currentUser()?.role.trim().toLowerCase() === 'admin';
@@ -78,17 +79,19 @@ export class UserCreateModalComponent implements OnInit {
     }
     this.loading.set(true);
     const { roleId, ...rest } = this.form.getRawValue();
+    this.errorMessage.set(null);
     this.users
       .create({ ...rest, roleId })
-      .pipe(switchMap((user) => this.users.get(user.id)))
+      .pipe(switchMap((user: User) => this.users.get(user.id)))
       .subscribe({
-        next: (user) => {
+        next: (user: User) => {
           this.loading.set(false);
           this.form.reset({ firstName: '', lastName: '', email: '', roleId: 0 });
           this.created.emit(user);
         },
-        error: () => {
+        error: (err: Error) => {
           this.loading.set(false);
+          this.errorMessage.set(err.message ?? 'Ocurrió un error al crear el usuario.');
         },
       });
   }
