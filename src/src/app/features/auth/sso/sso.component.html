@@ -1,0 +1,24 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo-wrap">
+      <div class="auth-logo-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <h1 class="auth-title">Health Grid</h1>
+      <p class="auth-sub">
+        @if (error()) {
+          No se pudo completar el ingreso
+        } @else {
+          Ingresando…
+        }
+      </p>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-error" role="alert">{{ error() }}</div>
+      <a class="btn-primary" routerLink="/login">Ir al inicio de sesión</a>
+    } @else {
+      <p class="intro-copy" aria-live="polite">Verificando tu acceso, aguardá un instante.</p>
+    }
+  </div>
+</div>

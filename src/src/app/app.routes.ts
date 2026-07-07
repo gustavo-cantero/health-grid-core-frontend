@@ -30,6 +30,11 @@ export const routes: Routes = [
         (m) => m.VerifyAccountComponent,
       ),
   },
+  {
+    path: 'auth/sso',
+    loadComponent: () =>
+      import('./features/auth/sso/sso.component').then((m) => m.SsoComponent),
+  },
 
   {
     path: '',
