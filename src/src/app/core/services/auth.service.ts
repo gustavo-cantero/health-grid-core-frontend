@@ -82,15 +82,15 @@ export class AuthService {
   }
 
   /**
-   * Canjea un código SSO de un solo uso por una sesión activa. El código llega
+   * Canjea un ticket SSO de un solo uso por una sesión activa. El ticket llega
    * en el link con el que otro módulo de la plataforma redirige al usuario ya
    * autenticado; se canjea contra la Core API (`POST /auth/sso-exchange`), que
-   * lo consume y devuelve un JWT fresco. El código es efímero y de un solo uso,
+   * lo consume y devuelve un JWT fresco. El ticket es efímero y de un solo uso,
    * así que se canjea apenas se recibe. Reutiliza el mismo chequeo de acceso y
    * la hidratación de sesión que el login normal.
    */
-  establishSessionFromCode(code: string): Observable<SessionUser> {
-    return this.http.post<ApiAuthResponse>(`${this.baseUrl}/sso-exchange`, { ticket: code }).pipe(
+  establishSessionFromTicket(ticket: string): Observable<SessionUser> {
+    return this.http.post<ApiAuthResponse>(`${this.baseUrl}/sso-exchange`, { ticket }).pipe(
       map((res) => this.persistWithAccessCheck(res)),
       switchMap((user) => this.hydrateSession(user.id)),
       catchError((err) => throwError(() => toError(err))),

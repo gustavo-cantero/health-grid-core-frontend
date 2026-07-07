@@ -6,14 +6,14 @@ import { AuthService } from '../../../core/services/auth.service';
  * Punto de entrada para el handoff de sesión entre módulos de la plataforma.
  *
  * Otro módulo (ya autenticado contra la misma Core API) redirige al usuario a
- * `/auth/sso?code=<ticket>&redirect=/core/users`. El `code` es un ticket de un
- * solo uso y de vida corta (~60 s) emitido por el core; este componente lo
- * canjea contra `POST /auth/sso-exchange` por un JWT fresco y deja al usuario
- * logueado sin volver a pedir credenciales.
+ * `/auth/sso?ticket=<ticket>&redirect=/core/users`. El `ticket` es de un solo
+ * uso y de vida corta (~60 s), emitido por el core; este componente lo canjea
+ * contra `POST /auth/sso-exchange` por un JWT fresco y deja al usuario logueado
+ * sin volver a pedir credenciales.
  *
  * El JWT nunca viaja en la URL: sólo el ticket, que es de bajo valor (expira en
- * segundos y no se puede reusar). El `code` y el `redirect` también se aceptan
- * en el fragment (`#code=...`) para que no queden en logs de servidor ni en el
+ * segundos y no se puede reusar). El `ticket` y el `redirect` también se aceptan
+ * en el fragment (`#ticket=...`) para que no queden en logs de servidor ni en el
  * `Referer`. `redirect` es opcional y sólo admite rutas internas.
  */
 @Component({
@@ -30,18 +30,18 @@ export class SsoComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
 
   ngOnInit(): void {
-    const { code, redirect } = this.readParams();
+    const { ticket, redirect } = this.readParams();
 
-    if (!code) {
-      this.error.set('El enlace de acceso no incluye un código SSO.');
+    if (!ticket) {
+      this.error.set('El enlace de acceso no incluye un ticket SSO.');
       return;
     }
 
-    this.auth.establishSessionFromCode(code).subscribe({
+    this.auth.establishSessionFromTicket(ticket).subscribe({
       next: () => {
         const target =
           this.safeRedirect(redirect) ?? this.auth.firstAllowedModuleRoute() ?? '/login';
-        // replaceUrl para que el código no quede en el historial de navegación.
+        // replaceUrl para que el ticket no quede en el historial de navegación.
         void this.router.navigateByUrl(target, { replaceUrl: true });
       },
       error: (err: Error) => this.error.set(err.message || 'No se pudo iniciar la sesión.'),
@@ -49,16 +49,16 @@ export class SsoComponent implements OnInit {
   }
 
   /**
-   * Lee el código y el destino, priorizando el fragment (#code=...) sobre el
-   * query string (?code=...). Acepta `ticket` como alias de `code` y `next`
+   * Lee el ticket y el destino, priorizando el fragment (#ticket=...) sobre el
+   * query string (?ticket=...). Acepta `code` como alias de `ticket` y `next`
    * como alias de `redirect`, para tolerar la convención de otros módulos.
    */
-  private readParams(): { code: string | null; redirect: string | null } {
+  private readParams(): { ticket: string | null; redirect: string | null } {
     const snap = this.route.snapshot;
     const frag = snap.fragment ? new URLSearchParams(snap.fragment) : null;
     const q = snap.queryParamMap;
     return {
-      code: frag?.get('code') ?? frag?.get('ticket') ?? q.get('code') ?? q.get('ticket'),
+      ticket: frag?.get('ticket') ?? frag?.get('code') ?? q.get('ticket') ?? q.get('code'),
       redirect: frag?.get('redirect') ?? frag?.get('next') ?? q.get('redirect') ?? q.get('next'),
     };
   }
