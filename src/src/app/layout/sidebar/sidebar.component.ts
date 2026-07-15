@@ -71,7 +71,7 @@ export class SidebarComponent {
   protected readonly modules: readonly ModuleEntry[] = [
     { label: 'Historia Clínica', icon: 'file-text', ssoUrl: environment.medicalRecordsSsoUrl },
     { label: 'Turnos y Agendas', icon: 'calendar', ssoUrl: environment.appointmentsSsoUrl },
-    { label: 'Farmacia e Insumos', icon: 'package' },
+    { label: 'Farmacia e Insumos', icon: 'package', ssoUrl: environment.pharmacySsoUrl },
     { label: 'Laboratorio', icon: 'activity' },
     { label: 'Diagnóstico por Imágenes', icon: 'image', ssoUrl: environment.imagingSsoUrl },
     { label: 'Internación y Camas', icon: 'home' },
