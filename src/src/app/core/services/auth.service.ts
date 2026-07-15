@@ -54,6 +54,12 @@ export class AuthService {
     return permissions.every((p) => this.has(p));
   }
 
+  hasScoped(permission: string): boolean {
+    if (this.has(permission)) return true;
+    const prefix = `${permission}:`;
+    return this._permissions().some((p) => p.startsWith(prefix));
+  }
+
   /** Ruta del primer módulo core que el usuario puede leer, o null si ninguno. */
   firstAllowedModuleRoute(): string | null {
     return CORE_MODULES.find((m) => this.has(m.read))?.path ?? null;

@@ -47,10 +47,8 @@ export class UsersListComponent implements OnInit {
 
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
   protected readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: '' });
-  protected readonly canCreateUsers = computed(
-    () =>
-      this.auth.currentUser()?.role.trim().toLowerCase() === 'admin' &&
-      this.auth.has(PERMISSIONS.users.create),
+  protected readonly canCreateUsers = computed(() =>
+    this.auth.hasScoped(PERMISSIONS.users.create),
   );
 
   protected readonly filtered = computed(() => {
