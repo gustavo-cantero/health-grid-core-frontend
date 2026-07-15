@@ -53,6 +53,12 @@ export interface ApiAuthResponse {
   user: ApiUser;
 }
 
+/** Respuesta de `POST /auth/sso-ticket`: ticket opaco y su vida útil en segundos. */
+export interface ApiSSOTicketResponse {
+  ticket: string;
+  expires_in: number;
+}
+
 export interface ApiError {
   error: string;
 }

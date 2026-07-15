@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CreateUserPayload } from '../models/user.model';
-import { ApiAuthResponse, ApiUser } from '../models/api.model';
+import { ApiAuthResponse, ApiSSOTicketResponse, ApiUser } from '../models/api.model';
 import { toError } from '../utils/api-error';
 import { isTokenExpired, permissionsFromToken } from '../utils/jwt';
 import { CORE_MODULES, MODULE_READ_PERMISSIONS } from '../auth/permissions';
@@ -99,6 +99,23 @@ export class AuthService {
     return this.http.post<ApiAuthResponse>(`${this.baseUrl}/sso-exchange`, { ticket }).pipe(
       map((res) => this.persistWithAccessCheck(res)),
       switchMap((user) => this.hydrateSession(user.id)),
+      catchError((err) => throwError(() => toError(err))),
+    );
+  }
+
+  /**
+   * Pide al core un ticket SSO de un solo uso para la sesión actual
+   * (`POST /auth/sso-ticket`, autenticado con el JWT vigente). Es la contraparte
+   * de `establishSessionFromTicket`: sirve para pasarle la sesión a un módulo que
+   * vive en otro dominio, donde la cookie/JWT de acá no llegan. El ticket viaja
+   * en la URL del redirect y el módulo destino lo canjea por un JWT propio.
+   *
+   * El ticket dura ~60 s y es de un solo uso, así que hay que redirigir apenas
+   * se recibe; no tiene sentido pedirlo por adelantado ni cachearlo.
+   */
+  issueSsoTicket(): Observable<string> {
+    return this.http.post<ApiSSOTicketResponse>(`${this.baseUrl}/sso-ticket`, {}).pipe(
+      map((res) => res.ticket),
       catchError((err) => throwError(() => toError(err))),
     );
   }

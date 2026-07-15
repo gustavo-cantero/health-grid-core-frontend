@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DOCUMENT,
   ElementRef,
   computed,
   inject,
@@ -9,6 +10,8 @@ import {
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CORE_MODULES, PERMISSIONS } from '../../core/auth/permissions';
+import { ToastService } from '../../shared/services/toast.service';
+import { environment } from '../../../environments/environment';
 import { ProfileEditModalComponent } from '../profile-edit-modal/profile-edit-modal.component';
 import { ChangePasswordModalComponent } from '../change-password-modal/change-password-modal.component';
 
@@ -26,6 +29,8 @@ type ModuleIcon =
 interface ModuleEntry {
   label: string;
   icon: ModuleIcon;
+  /** Callback SSO del módulo, cuando vive en otro dominio. Sin esto, no está disponible. */
+  ssoUrl?: string;
 }
 
 interface CoreSubItem {
@@ -48,6 +53,11 @@ export class SidebarComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly toast = inject(ToastService);
+  private readonly document = inject(DOCUMENT);
+
+  /** Label del módulo cuyo ticket SSO se está pidiendo, o null si no hay ninguno. */
+  protected readonly ssoPending = signal<string | null>(null);
 
   protected readonly coreOpen = signal<boolean>(true);
   protected readonly userMenuOpen = signal<boolean>(false);
@@ -66,7 +76,7 @@ export class SidebarComponent {
     { label: 'Diagnóstico por Imágenes', icon: 'image' },
     { label: 'Internación y Camas', icon: 'home' },
     { label: 'Facturación', icon: 'credit-card' },
-    { label: 'Portal del Paciente', icon: 'user' },
+    { label: 'Portal del Paciente', icon: 'user', ssoUrl: environment.patientPortalSsoUrl },
     { label: 'Monitoreo', icon: 'bar-chart' },
   ];
 
@@ -83,6 +93,31 @@ export class SidebarComponent {
   protected readonly canChangePassword = computed(() =>
     this.auth.has(PERMISSIONS.users.passwordSelf),
   );
+
+  /**
+   * Abre un módulo de otro dominio con la sesión ya iniciada: pide al core un
+   * ticket SSO de un solo uso y redirige al callback del módulo con el ticket
+   * en la query. Allá se canjea por un JWT propio, así que el usuario no vuelve
+   * a loguearse.
+   *
+   * El ticket vive ~60 s: se pide recién al hacer clic y se navega enseguida.
+   * La navegación es en la misma pestaña (no `window.open`) para que un bloqueo
+   * de popups no deje el ticket sin usar.
+   */
+  openModuleSso(m: ModuleEntry): void {
+    if (!m.ssoUrl || this.ssoPending() !== null) return;
+
+    this.ssoPending.set(m.label);
+    this.auth.issueSsoTicket().subscribe({
+      next: (ticket) => {
+        this.document.location.href = `${m.ssoUrl}?ticket=${encodeURIComponent(ticket)}`;
+      },
+      error: (err: Error) => {
+        this.ssoPending.set(null);
+        this.toast.show(err.message || `No se pudo abrir ${m.label}.`);
+      },
+    });
+  }
 
   toggleCore(): void {
     this.coreOpen.update((v) => !v);

@@ -18,9 +18,9 @@
       <button
         type="button"
         class="nav-item"
-        disabled
-        aria-disabled="true"
-        title="Modulo no disponible"
+        [disabled]="!m.ssoUrl || ssoPending() !== null"
+        [title]="m.ssoUrl ? 'Abrir ' + m.label : 'Modulo no disponible'"
+        (click)="openModuleSso(m)"
       >
         <span class="nav-icon" aria-hidden="true">
           @switch (m.icon) {
@@ -36,6 +36,9 @@
           }
         </span>
         <span class="nav-label">{{ m.label }}</span>
+        @if (ssoPending() === m.label) {
+          <span class="nav-module">Abriendo…</span>
+        }
       </button>
     }
 
