@@ -69,7 +69,7 @@ export class SidebarComponent {
   protected readonly initials = computed(() => this.auth.currentUser()?.initials ?? 'GA');
 
   protected readonly modules: readonly ModuleEntry[] = [
-    { label: 'Historia Clínica', icon: 'file-text' },
+    { label: 'Historia Clínica', icon: 'file-text', ssoUrl: environment.medicalRecordsSsoUrl },
     { label: 'Turnos y Agendas', icon: 'calendar' },
     { label: 'Farmacia e Insumos', icon: 'package' },
     { label: 'Laboratorio', icon: 'activity' },
