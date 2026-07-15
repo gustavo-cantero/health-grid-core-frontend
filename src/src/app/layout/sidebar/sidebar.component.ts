@@ -73,7 +73,7 @@ export class SidebarComponent {
     { label: 'Turnos y Agendas', icon: 'calendar', ssoUrl: environment.appointmentsSsoUrl },
     { label: 'Farmacia e Insumos', icon: 'package' },
     { label: 'Laboratorio', icon: 'activity' },
-    { label: 'Diagnóstico por Imágenes', icon: 'image' },
+    { label: 'Diagnóstico por Imágenes', icon: 'image', ssoUrl: environment.imagingSsoUrl },
     { label: 'Internación y Camas', icon: 'home' },
     { label: 'Facturación', icon: 'credit-card' },
     { label: 'Portal del Paciente', icon: 'user', ssoUrl: environment.patientPortalSsoUrl },

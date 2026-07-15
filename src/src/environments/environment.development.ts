@@ -6,4 +6,5 @@ export const environment = {
   patientPortalSsoUrl: 'https://da2frontend.onrender.com/auth/sso',
   medicalRecordsSsoUrl: 'https://healthgrid-hce-frontend-olive.vercel.app/auth/sso',
   appointmentsSsoUrl: 'https://turnos.solefrancisco.com/auth/sso',
+  imagingSsoUrl: 'https://uade-da-2-frontend.vercel.app/auth/sso',
 };
