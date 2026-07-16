@@ -15,10 +15,16 @@ import { Speciality } from '../../../core/models/speciality.model';
 import { SpecialityFormModalComponent } from './speciality-form-modal.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { HasPermissionDirective } from '../../../core/auth/has-permission.directive';
+import { PaginationComponent } from '../../../shared/ui/pagination/pagination.component';
 
 @Component({
   selector: 'app-specialities-list',
-  imports: [SpecialityFormModalComponent, ConfirmDeleteComponent, HasPermissionDirective],
+  imports: [
+    SpecialityFormModalComponent,
+    ConfirmDeleteComponent,
+    HasPermissionDirective,
+    PaginationComponent,
+  ],
   templateUrl: './specialities-list.component.html',
   styleUrls: ['./specialities-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,10 +49,6 @@ export class SpecialitiesListComponent implements OnInit {
     return this.specialities().slice(start, start + PAGE_SIZE);
   });
 
-  protected readonly pages = computed(() =>
-    Array.from({ length: this.totalPages() }, (_, i) => i + 1),
-  );
-
   private readonly countMap = computed(() => {
     const map = new Map<number, number>();
     for (const u of this.userService.users()) {
@@ -60,13 +62,6 @@ export class SpecialitiesListComponent implements OnInit {
   ngOnInit(): void {
     this.specService.list().subscribe();
     this.userService.list().subscribe();
-  }
-
-  prev(): void {
-    if (this.page() > 1) this.page.update((p) => p - 1);
-  }
-  next(): void {
-    if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
   }
 
   doctorCount(specId: number): number {

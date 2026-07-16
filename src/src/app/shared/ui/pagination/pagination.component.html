@@ -1,0 +1,36 @@
+<nav class="pagination" aria-label="Paginación">
+  <button
+    type="button"
+    class="pg-btn"
+    [disabled]="page() === 1"
+    (click)="prev()"
+    aria-label="Página anterior"
+  >
+    ←
+  </button>
+  @for (item of items(); track $index) {
+    @if (item.kind === 'gap') {
+      <span class="pg-ellipsis" aria-hidden="true">…</span>
+    } @else {
+      <button
+        type="button"
+        class="pg-btn"
+        [class.active]="page() === item.n"
+        [attr.aria-current]="page() === item.n ? 'page' : null"
+        [attr.aria-label]="'Página ' + item.n"
+        (click)="goTo(item.n)"
+      >
+        {{ item.n }}
+      </button>
+    }
+  }
+  <button
+    type="button"
+    class="pg-btn"
+    [disabled]="page() === totalPages()"
+    (click)="next()"
+    aria-label="Página siguiente"
+  >
+    →
+  </button>
+</nav>

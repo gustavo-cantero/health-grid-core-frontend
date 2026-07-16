@@ -13,6 +13,7 @@ import { RoleCreateModalComponent } from './role-create-modal.component';
 import { RoleEditModalComponent } from './role-edit-modal.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { HasPermissionDirective } from '../../../core/auth/has-permission.directive';
+import { PaginationComponent } from '../../../shared/ui/pagination/pagination.component';
 
 const PAGE_SIZE = 10;
 
@@ -23,6 +24,7 @@ const PAGE_SIZE = 10;
     RoleEditModalComponent,
     ConfirmDeleteComponent,
     HasPermissionDirective,
+    PaginationComponent,
   ],
   templateUrl: './roles-page.component.html',
   styleUrls: ['./roles-page.component.scss'],
@@ -48,20 +50,9 @@ export class RolesPageComponent implements OnInit {
     return this.roles().slice(start, start + PAGE_SIZE);
   });
 
-  protected readonly pages = computed(() =>
-    Array.from({ length: this.totalPages() }, (_, i) => i + 1),
-  );
-
   ngOnInit(): void {
     // /roles ya trae los usuarios anidados, así que el conteo sale de ahí.
     this.roleService.list().subscribe();
-  }
-
-  prev(): void {
-    if (this.page() > 1) this.page.update((p) => p - 1);
-  }
-  next(): void {
-    if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
   }
 
   onCreated(role: Role): void {

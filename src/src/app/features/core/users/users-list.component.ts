@@ -17,6 +17,7 @@ import { UserCreateModalComponent } from './user-create-modal.component';
 import { UserEditModalComponent } from './user-edit-modal.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { HasPermissionDirective } from '../../../core/auth/has-permission.directive';
+import { PaginationComponent } from '../../../shared/ui/pagination/pagination.component';
 
 const PAGE_SIZE = 10;
 
@@ -28,6 +29,7 @@ const PAGE_SIZE = 10;
     UserEditModalComponent,
     ConfirmDeleteComponent,
     HasPermissionDirective,
+    PaginationComponent,
   ],
   templateUrl: './users-list.component.html',
   styleUrls: ['./users-list.component.scss'],
@@ -69,21 +71,10 @@ export class UsersListComponent implements OnInit {
     return this.filtered().slice(start, start + PAGE_SIZE);
   });
 
-  protected readonly pages = computed(() =>
-    Array.from({ length: this.totalPages() }, (_, i) => i + 1),
-  );
-
   ngOnInit(): void {
     // /users ya trae roles, especialidades y ubicaciones anidados, así que un
     // único endpoint alcanza para pintar el listado.
     this.userService.list().subscribe();
-  }
-
-  prev(): void {
-    if (this.page() > 1) this.page.update((p) => p - 1);
-  }
-  next(): void {
-    if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
   }
 
   initials(u: User): string {

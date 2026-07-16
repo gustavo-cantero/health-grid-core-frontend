@@ -1,0 +1,10 @@
+:host { display: block; }
+
+// Ocupa un ancho similar al de un botón para que la fila no salte al cambiar de página.
+.pg-ellipsis {
+  min-width: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: #777;
+  user-select: none;
+}
