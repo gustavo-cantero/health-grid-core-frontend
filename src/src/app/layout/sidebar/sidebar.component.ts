@@ -75,7 +75,7 @@ export class SidebarComponent {
     { label: 'Laboratorio', icon: 'activity', ssoUrl: environment.labSsoUrl },
     { label: 'Diagnóstico por Imágenes', icon: 'image', ssoUrl: environment.imagingSsoUrl },
     { label: 'Internación y Camas', icon: 'home', ssoUrl: environment.inpatientSsoUrl },
-    { label: 'Facturación', icon: 'credit-card' },
+    { label: 'Facturación', icon: 'credit-card', ssoUrl: environment.billingSsoUrl },
     { label: 'Portal del Paciente', icon: 'user', ssoUrl: environment.patientPortalSsoUrl },
     { label: 'Monitoreo', icon: 'bar-chart' },
   ];

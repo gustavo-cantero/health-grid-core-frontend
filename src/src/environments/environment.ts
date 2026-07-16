@@ -10,4 +10,5 @@ export const environment = {
   pharmacySsoUrl: 'https://front-modulo3-farmacia.vercel.app/auth/sso',
   inpatientSsoUrl: 'https://internaciones-y-camas.vercel.app/auth/sso',
   labSsoUrl: 'https://modulo-laboratorio.up.railway.app/auth/sso',
+  billingSsoUrl: 'https://modulo7-frontend.onrender.com/auth/sso',
 };
