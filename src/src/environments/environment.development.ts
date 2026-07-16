@@ -8,4 +8,5 @@ export const environment = {
   appointmentsSsoUrl: 'https://turnos.solefrancisco.com/auth/sso',
   imagingSsoUrl: 'https://uade-da-2-frontend.vercel.app/auth/sso',
   pharmacySsoUrl: 'https://front-modulo3-farmacia.vercel.app/auth/sso',
+  inpatientSsoUrl: 'https://internaciones-y-camas.vercel.app/auth/sso',
 };
