@@ -72,7 +72,7 @@ export class SidebarComponent {
     { label: 'Historia Clínica', icon: 'file-text', ssoUrl: environment.medicalRecordsSsoUrl },
     { label: 'Turnos y Agendas', icon: 'calendar', ssoUrl: environment.appointmentsSsoUrl },
     { label: 'Farmacia e Insumos', icon: 'package', ssoUrl: environment.pharmacySsoUrl },
-    { label: 'Laboratorio', icon: 'activity' },
+    { label: 'Laboratorio', icon: 'activity', ssoUrl: environment.labSsoUrl },
     { label: 'Diagnóstico por Imágenes', icon: 'image', ssoUrl: environment.imagingSsoUrl },
     { label: 'Internación y Camas', icon: 'home', ssoUrl: environment.inpatientSsoUrl },
     { label: 'Facturación', icon: 'credit-card' },

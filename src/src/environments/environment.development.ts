@@ -9,4 +9,5 @@ export const environment = {
   imagingSsoUrl: 'https://uade-da-2-frontend.vercel.app/auth/sso',
   pharmacySsoUrl: 'https://front-modulo3-farmacia.vercel.app/auth/sso',
   inpatientSsoUrl: 'https://internaciones-y-camas.vercel.app/auth/sso',
+  labSsoUrl: 'https://modulo-laboratorio.up.railway.app/auth/sso',
 };
