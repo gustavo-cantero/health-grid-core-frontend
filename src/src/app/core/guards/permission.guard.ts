@@ -4,15 +4,14 @@ import { AuthService } from '../services/auth.service';
 
 /**
  * Crea un guard que solo permite activar la ruta si la sesión tiene el permiso
- * requerido. Si no lo tiene, redirige al primer módulo que el usuario sí pueda
- * ver, o al login si no tiene acceso a ninguno.
+ * requerido. Si no lo tiene, lo manda al inicio: la sesión es válida igual, así
+ * que sigue pudiendo usar el menú lateral aunque este ABM le quede vedado.
  */
 export function permissionGuard(required: string): CanActivateFn {
   return () => {
     const auth = inject(AuthService);
     const router = inject(Router);
     if (auth.has(required)) return true;
-    const fallback = auth.firstAllowedModuleRoute();
-    return router.createUrlTree([fallback ?? '/login']);
+    return router.createUrlTree(['/inicio']);
   };
 }

@@ -55,8 +55,8 @@ export class RegisterComponent {
       next: () => {
         this.loading.set(false);
         this.success.set(true);
-        // El registro ya devuelve un token (auto-login) → vamos al primer módulo permitido.
-        this.router.navigateByUrl(this.auth.firstAllowedModuleRoute() ?? '/login');
+        // El registro ya devuelve un token (auto-login) → entramos directo.
+        this.router.navigateByUrl('/inicio');
       },
       error: (err: Error) => {
         this.loading.set(false);

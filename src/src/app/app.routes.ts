@@ -41,6 +41,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./layout/shell/shell.component').then((m) => m.ShellComponent),
     children: [
+      // Sin permiso requerido: alcanza con una sesión válida.
+      {
+        path: 'inicio',
+        loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent),
+      },
       { path: 'core', pathMatch: 'full', redirectTo: 'core/users' },
       {
         path: 'core/users',

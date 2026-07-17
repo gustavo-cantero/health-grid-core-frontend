@@ -39,8 +39,8 @@ export interface ModuleDef {
   read: string;
 }
 
-// Los cinco módulos core. El usuario debe tener al menos uno de estos permisos
-// de lectura para que se le permita iniciar sesión.
+// Los cinco módulos core. Cada uno se muestra y se accede solo con su permiso
+// de lectura; no tener ninguno no impide iniciar sesión.
 export const CORE_MODULES: readonly ModuleDef[] = [
   { key: 'users', label: 'Usuarios', path: '/core/users', read: PERMISSIONS.users.read },
   { key: 'roles', label: 'Roles', path: '/core/roles', read: PERMISSIONS.roles.read },
@@ -63,5 +63,3 @@ export const CORE_MODULES: readonly ModuleDef[] = [
     read: PERMISSIONS.locations.read,
   },
 ];
-
-export const MODULE_READ_PERMISSIONS: readonly string[] = CORE_MODULES.map((m) => m.read);

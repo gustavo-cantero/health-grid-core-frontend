@@ -6,7 +6,6 @@ import { CreateUserPayload } from '../models/user.model';
 import { ApiAuthResponse, ApiSSOTicketResponse, ApiUser } from '../models/api.model';
 import { toError } from '../utils/api-error';
 import { isTokenExpired, permissionsFromToken } from '../utils/jwt';
-import { CORE_MODULES, MODULE_READ_PERMISSIONS } from '../auth/permissions';
 
 export interface SessionUser {
   id: number;
@@ -60,14 +59,9 @@ export class AuthService {
     return this._permissions().some((p) => p.startsWith(prefix));
   }
 
-  /** Ruta del primer módulo core que el usuario puede leer, o null si ninguno. */
-  firstAllowedModuleRoute(): string | null {
-    return CORE_MODULES.find((m) => this.has(m.read))?.path ?? null;
-  }
-
   login(email: string, password: string): Observable<SessionUser> {
     return this.http.post<ApiAuthResponse>(`${this.baseUrl}/login`, { email, password }).pipe(
-      map((res) => this.persistWithAccessCheck(res)),
+      map((res) => this.persist(res)),
       switchMap((user) => this.hydrateSession(user.id)),
       catchError((err) => throwError(() => toError(err))),
     );
@@ -81,7 +75,7 @@ export class AuthService {
       password: payload.password,
     };
     return this.http.post<ApiAuthResponse>(`${this.baseUrl}/register`, body).pipe(
-      map((res) => this.persistWithAccessCheck(res)),
+      map((res) => this.persist(res)),
       switchMap((user) => this.hydrateSession(user.id)),
       catchError((err) => throwError(() => toError(err))),
     );
@@ -92,12 +86,12 @@ export class AuthService {
    * en el link con el que otro módulo de la plataforma redirige al usuario ya
    * autenticado; se canjea contra la Core API (`POST /auth/sso-exchange`), que
    * lo consume y devuelve un JWT fresco. El ticket es efímero y de un solo uso,
-   * así que se canjea apenas se recibe. Reutiliza el mismo chequeo de acceso y
-   * la hidratación de sesión que el login normal.
+   * así que se canjea apenas se recibe. Reutiliza la misma hidratación de sesión
+   * que el login normal.
    */
   establishSessionFromTicket(ticket: string): Observable<SessionUser> {
     return this.http.post<ApiAuthResponse>(`${this.baseUrl}/sso-exchange`, { ticket }).pipe(
-      map((res) => this.persistWithAccessCheck(res)),
+      map((res) => this.persist(res)),
       switchMap((user) => this.hydrateSession(user.id)),
       catchError((err) => throwError(() => toError(err))),
     );
@@ -204,21 +198,6 @@ export class AuthService {
     this.isAuthenticated.set(false);
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(TOKEN_KEY);
-  }
-
-  /**
-   * Persiste la sesión solo si el JWT da acceso a al menos un módulo core; en
-   * caso contrario lanza un error para que las pantallas de auth muestren el
-   * motivo y el usuario nunca quede logueado sin nada que hacer.
-   */
-  private persistWithAccessCheck(res: ApiAuthResponse): SessionUser {
-    const perms = permissionsFromToken(res.token);
-    if (!perms.some((p) => MODULE_READ_PERMISSIONS.includes(p))) {
-      throw new Error(
-        'Tu usuario no tiene permisos para acceder a ningún módulo. Contactá a un administrador.',
-      );
-    }
-    return this.persist(res);
   }
 
   private persist(res: ApiAuthResponse): SessionUser {

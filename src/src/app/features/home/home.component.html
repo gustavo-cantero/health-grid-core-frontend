@@ -1,0 +1,24 @@
+<div class="page-eyebrow">Inicio</div>
+<h1 class="page-title">Hola{{ userName() ? ', ' + userName() : '' }}</h1>
+<p class="page-subtitle">Elegí un módulo del menú lateral para comenzar.</p>
+
+@if (coreModules().length > 0) {
+  <h2 class="home-section-title">Administración</h2>
+  <ul class="home-cards">
+    @for (m of coreModules(); track m.key) {
+      <li>
+        <a class="home-card" [routerLink]="m.path">
+          <span class="home-card-label">{{ m.label }}</span>
+          <span class="home-card-chevron" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </span>
+        </a>
+      </li>
+    }
+  </ul>
+} @else {
+  <p class="home-note">
+    Tu usuario no tiene acceso a los módulos de administración. Si necesitás alguno,
+    contactá a un administrador.
+  </p>
+}

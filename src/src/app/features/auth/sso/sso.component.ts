@@ -39,8 +39,7 @@ export class SsoComponent implements OnInit {
 
     this.auth.establishSessionFromTicket(ticket).subscribe({
       next: () => {
-        const target =
-          this.safeRedirect(redirect) ?? this.auth.firstAllowedModuleRoute() ?? '/login';
+        const target = this.safeRedirect(redirect) ?? '/inicio';
         // replaceUrl para que el ticket no quede en el historial de navegación.
         void this.router.navigateByUrl(target, { replaceUrl: true });
       },

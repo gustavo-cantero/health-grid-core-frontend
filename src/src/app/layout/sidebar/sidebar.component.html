@@ -42,35 +42,38 @@
       </button>
     }
 
-    <button
-      type="button"
-      class="nav-item"
-      [class.core-active]="coreOpen()"
-      [attr.aria-expanded]="coreOpen()"
-      aria-controls="core-submenu"
-      (click)="toggleCore()"
-    >
-      <span class="nav-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-      </span>
-      <span class="nav-label">Core</span>
-      <span class="nav-icon" [class.rotate]="coreOpen()" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
-      </span>
-    </button>
+    <!-- Sin ABM visibles no mostramos la sección: sería un acordeón que no abre nada. -->
+    @if (coreItems().length > 0) {
+      <button
+        type="button"
+        class="nav-item"
+        [class.core-active]="coreOpen()"
+        [attr.aria-expanded]="coreOpen()"
+        aria-controls="core-submenu"
+        (click)="toggleCore()"
+      >
+        <span class="nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </span>
+        <span class="nav-label">Core</span>
+        <span class="nav-icon" [class.rotate]="coreOpen()" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </span>
+      </button>
 
-    <div id="core-submenu" class="nav-submenu" [class.open]="coreOpen()">
-      @for (item of coreItems(); track item.path) {
-        <a
-          class="nav-subitem"
-          [routerLink]="item.path"
-          routerLinkActive="active"
-        >{{ item.label }}</a>
-      }
-    </div>
+      <div id="core-submenu" class="nav-submenu" [class.open]="coreOpen()">
+        @for (item of coreItems(); track item.path) {
+          <a
+            class="nav-subitem"
+            [routerLink]="item.path"
+            routerLinkActive="active"
+          >{{ item.label }}</a>
+        }
+      </div>
+    }
   </nav>
 
   <div class="sidebar-footer">
