@@ -11,8 +11,5 @@ export const environment = {
   inpatientSsoUrl: 'https://internaciones-y-camas.vercel.app/auth/sso',
   labSsoUrl: 'https://modulo-laboratorio.up.railway.app/auth/sso',
   billingSsoUrl: 'https://modulo7-frontend.onrender.com/auth/sso',
-  // OJO: el ALB de monitoreo no tiene listener TLS, así que esto va por HTTP y el
-  // ticket viaja en texto plano. Pasar a https apenas el módulo lo soporte.
-  monitoringSsoUrl:
-    'http://m9-monitoring-alb-1949535151.us-east-1.elb.amazonaws.com/api/v1/auth/sso',
+  monitoringSsoUrl: 'https://dzp5goz8czibt.cloudfront.net/auth/sso',
 };
