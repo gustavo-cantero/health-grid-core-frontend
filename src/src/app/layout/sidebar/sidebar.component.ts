@@ -77,7 +77,7 @@ export class SidebarComponent {
     { label: 'Internación y Camas', icon: 'home', ssoUrl: environment.inpatientSsoUrl },
     { label: 'Facturación', icon: 'credit-card', ssoUrl: environment.billingSsoUrl },
     { label: 'Portal del Paciente', icon: 'user', ssoUrl: environment.patientPortalSsoUrl },
-    { label: 'Monitoreo', icon: 'bar-chart' },
+    { label: 'Monitoreo', icon: 'bar-chart', ssoUrl: environment.monitoringSsoUrl },
   ];
 
   // Solo se muestran los módulos para los que el usuario tiene permiso de lectura.
