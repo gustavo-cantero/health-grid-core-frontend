@@ -10,5 +10,6 @@ import { ToastService } from '../../services/toast.service';
 export class ToastComponent {
   private readonly toast = inject(ToastService);
   readonly message = this.toast.message;
+  readonly variant = this.toast.variant;
   readonly visible = computed(() => this.message() !== null);
 }

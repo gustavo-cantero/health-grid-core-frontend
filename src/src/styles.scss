@@ -451,6 +451,10 @@ code {
   box-shadow: 0 4px 20px rgba(0,76,54,.35);
 }
 .toast.show { opacity: 1; }
+.toast.warning {
+  background: #b45309; color: #fff;
+  box-shadow: 0 4px 20px rgba(180,83,9,.35);
+}
 
 .visually-hidden {
   position: absolute !important;
